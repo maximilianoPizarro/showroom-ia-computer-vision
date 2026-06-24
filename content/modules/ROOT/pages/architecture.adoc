@@ -1,0 +1,46 @@
+= Architecture overview
+:_content-type: CONCEPT
+
+The **AI Computer Vision** Validated Pattern deploys a three-cluster hub-spoke topology for centralized control and distributed edge inference.
+
+== Cluster roles
+
+[cols="1,2,3",options="header"]
+|===
+| Cluster | Role | Key components
+
+| Hub
+| Fleet control plane
+| RHACM, Vault, External Secrets Operator (ESO), RHACS Central, RHCL gateway, GitLab, Developer Hub, OpenShift AI, Quay, Keycloak
+
+| East spoke
+| Edge inference
+| NeuroFace, OVMS/YOLO CV, Skupper, Service Mesh ambient mode, RHACS Secured Cluster, observability stack
+
+| West spoke
+| Edge inference
+| Same as east; traffic load-balanced through RHCL HTTPRoute (50/50)
+|===
+
+== Data and control flow
+
+. GitOps (OpenShift GitOps) syncs pattern manifests from the `ia-computer-vision` repository to each cluster.
+. RHACM registers and labels east and west as managed clusters.
+. RHCL on the hub exposes NeuroFace through Gateway API HTTPRoutes with east/west backend weights.
+. Skupper provides cross-cluster service interconnect for edge components.
+. RHACS Central on the hub receives telemetry from secured clusters on spokes.
+. OpenTelemetry collectors and Grafana dashboards provide multi-cluster observability.
+
+== Workshop components
+
+When workshop mode is enabled (default), the pattern provisions:
+
+* `user1` through `user30` HTPasswd accounts on all clusters
+* Keycloak and Backstage catalog users on Developer Hub
+* GitLab users and `ws-userN` groups for scaffolder workflows
+* DevSpaces git credentials in `userN-devspaces` namespaces
+* Showroom lab guide (this content) with embedded `oc` terminal
+
+== Customization
+
+Adjust the number of workshop users by changing the `userCount` override in the pattern values files. See the pattern documentation for scaling guidance.

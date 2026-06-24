@@ -1,0 +1,40 @@
+= {lab_name}
+:_content-type: ASSEMBLY
+
+Welcome to the **AI Computer Vision** Validated Pattern workshop.
+
+This lab guide walks you through a multi-cluster deployment that combines Red Hat OpenShift Container Platform (OCP), Red Hat OpenShift AI (RHOAI), Red Hat Developer Hub (RHDH), and edge inference with NeuroFace computer vision workloads.
+
+== What you will explore
+
+* Hub-spoke fleet management with Red Hat Advanced Cluster Management (RHACM)
+* AI inference at the edge with OpenVINO Model Server (OVMS) and YOLO
+* Cross-cluster connectivity with Skupper and Red Hat Connectivity Link (RHCL)
+* Observability with Grafana, Kiali, and OpenTelemetry
+* Developer self-service with Developer Hub, GitLab, and OpenShift DevSpaces
+
+== Workshop access
+
+Use your assigned workshop user (`user1` through `user30`) with password `Welcome123!` to log in to:
+
+* OCP Console (HTPasswd identity provider `workshop-users`)
+* Red Hat Developer Hub (Keycloak realm `backstage`)
+* GitLab and DevSpaces (provisioned per user)
+
+== Lab terminal
+
+The embedded terminal on the right supports helper commands:
+
+[source,sh]
+----
+hub-login user1
+east-login user1
+west-login user1
+neuroface-cv-status
+neuroface-cv-traffic
+neuroface-spoke-status
+----
+
+== Next steps
+
+Continue with xref:getting-started.adoc[Getting started] or review the xref:architecture.adoc[Architecture overview].

@@ -1,0 +1,15 @@
+name: modules
+title: AI Computer Vision Workshop
+version: main
+nav:
+  - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    lab_name: "AI Computer Vision at the Edge"
+    page-pagination: true
+    page-links:
+      - url: https://github.com/maximilianoPizarro/ia-computer-vision
+        text: Pattern repository
+      - url: https://maximilianopizarro.github.io/ia-computer-vision/
+        text: Pattern documentation
