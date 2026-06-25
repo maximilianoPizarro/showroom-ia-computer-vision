@@ -113,3 +113,45 @@ OpenShift AI dashboard: HTTP 200
 == Next
 
 Continue with xref:04-gateway-rhcl.adoc[Module 04 — Discover RHCL Gateway objects].
+
+=== Verify DataScienceCluster on hub
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+oc get datasciencecluster -o custom-columns=NAME:.metadata.name,PHASE:.status.phase
+oc get dscinitialization -o custom-columns=NAME:.metadata.name,PHASE:.status.phase
+----
+
+.Expected output
+[source,text]
+----
+NAME          PHASE
+default-dsc   Ready
+
+NAME           PHASE
+default-dsci   Ready
+----
+
+=== Verify dashboard is accessible
+
+[source,sh,role=execute]
+----
+curl -sk -o /dev/null -w "OpenShift AI dashboard: HTTP %{http_code}\n" \
+  https://rhods-dashboard-redhat-ods-applications.apps.%HUB_DOMAIN%/
+----
+
+=== List MaaS model connections
+
+[source,sh,role=execute]
+----
+oc get secret -n maas-workshop -l opendatahub.io/dashboard=true \
+  -o custom-columns=NAME:.metadata.name,TYPE:.metadata.annotations.opendatahub\.io/connection-type
+----
+
+.Expected output
+[source,text]
+----
+NAME                             TYPE
+openshift-ai-maas-credentials    generic
+----

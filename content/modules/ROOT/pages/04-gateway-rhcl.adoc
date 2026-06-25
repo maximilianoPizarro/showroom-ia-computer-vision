@@ -137,3 +137,42 @@ spec:
 == Next
 
 Continue with xref:05-maas-api-key.adoc[Module 05 — MaaS API key and curl inference].
+
+=== Inspect response headers
+
+[source,sh,role=execute]
+----
+curl -sk -D- https://neuroface.apps.%HUB_DOMAIN%/ 2>/dev/null | head -10
+----
+
+=== View all Gateway API objects
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+echo "=== Gateways ==="
+oc get gateway -A
+echo "=== HTTPRoutes ==="
+oc get httproute -A
+echo "=== Services (ExternalName) ==="
+oc get svc -n neuroface-gateway-system -o custom-columns=NAME:.metadata.name,TYPE:.spec.type,EXTERNAL:.spec.externalName
+----
+
+.Expected output
+[source,text]
+----
+=== Gateways ===
+NAMESPACE                   NAME                CLASS   ADDRESS   PROGRAMMED
+neuroface-gateway-system    neuroface-gateway   istio   ...       True
+
+=== HTTPRoutes ===
+NAMESPACE                   NAME               HOSTNAMES
+neuroface-gateway-system    neuroface-app-lb   [neuroface.apps....]
+
+=== Services (ExternalName) ===
+NAME                  TYPE           EXTERNAL
+neuroface-app-east    ExternalName   neuroface-app-east.service-interconnect.svc.cluster.local
+neuroface-app-west    ExternalName   neuroface-app-west.service-interconnect.svc.cluster.local
+----
+
+NOTE: The Gateway shows `PROGRAMMED: True` only when the Istio control plane is running in `istio-system`. If it shows `Unknown`, check that `servicemesh-config` ArgoCD app is Healthy.

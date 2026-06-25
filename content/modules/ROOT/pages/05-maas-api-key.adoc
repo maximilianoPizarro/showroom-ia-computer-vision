@@ -135,3 +135,41 @@ NeuroFace gateway: HTTP 200
 == Next
 
 Continue with xref:06-vault-secrets.adoc[Module 06 — Review and next steps].
+
+=== List available MaaS models
+
+[source,sh,role=execute]
+----
+curl -sk -H "Authorization: Bearer $API_KEY" \
+  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/models 2>/dev/null | python3 -m json.tool | head -20
+----
+
+=== Test with a different model
+
+[source,sh,role=execute]
+----
+curl -sk -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"granite-3-2-8b-instruct","messages":[{"role":"user","content":"What is YOLO object detection?"}],"max_tokens":100}' \
+  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/chat/completions 2>/dev/null | python3 -m json.tool | head -25
+----
+
+.Expected output (truncated)
+[source,json]
+----
+{
+    "id": "chatcmpl-xxx",
+    "object": "chat.completion",
+    "choices": [
+        {
+            "message": {
+                "role": "assistant",
+                "content": "YOLO (You Only Look Once) is a real-time..."
+            },
+            "finish_reason": "stop"
+        }
+    ]
+}
+----
+
+TIP: If MaaS returns `401 Unauthorized`, the API key in Vault may be a placeholder. Update it: `oc exec vault-0 -n vault -- vault kv put secret/hub/maas-credentials api-key="<real-key>"`

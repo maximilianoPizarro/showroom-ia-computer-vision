@@ -144,6 +144,36 @@ applications:
 oc get applications -n openshift-gitops -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | head -15
 ----
 
+.Expected output
+[source,text]
+----
+NAME                         SYNC        HEALTH
+acm                          Synced      Healthy
+vault                        Synced      Healthy
+platform-users               Synced      Healthy
+observability                Synced      Healthy
+developer-hub                Synced      Healthy
+...
+----
+
+=== Verify platform services
+
+[source,sh,role=execute]
+----
+curl -sk -o /dev/null -w "Console:       HTTP %{http_code}
+" https://console-openshift-console.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "ArgoCD:        HTTP %{http_code}
+" https://vp-gitops-server-vp-gitops.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Vault:         HTTP %{http_code}
+" https://vault-vault.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Developer Hub: HTTP %{http_code}
+" https://developer-hub.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "GitLab:        HTTP %{http_code}
+" https://gitlab.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Showroom:      HTTP %{http_code}
+" https://showroom-showroom.apps.%HUB_DOMAIN%/
+----
+
 == What you learned
 
 * The pattern spans hub + east + west with GitOps-managed components
