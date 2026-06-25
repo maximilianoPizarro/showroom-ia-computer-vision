@@ -1,0 +1,3 @@
+static_files:
+  - zero-touch-config.yml
+  - ui-config.yml

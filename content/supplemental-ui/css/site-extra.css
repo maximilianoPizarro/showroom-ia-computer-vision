@@ -1,0 +1,104 @@
+/* left align items inside imageblock */
+.doc .imageblock {
+    align-items: flex-start;
+  }
+
+/* add a shadow to the image container */
+.doc .bordershadow .content{
+    border: solid 1px black;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+/*custom video css*/
+video {
+    border: solid 1px black;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+/* allow for wider screens */
+.doc {
+    max-width: none;
+}
+
+.navbar-item-right-dropdown {
+    float: right!important;
+}
+
+.navbar-dropdown-right {
+    right: 0;
+    left: auto;
+}
+
+.navbar-item-right-content {
+    width: 100%;
+    background-color: #131313;
+}
+
+/* Cluster domain form in navbar */
+.cluster-domain-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.cluster-domain-form input {
+    padding: 6px 10px;
+    border: 1px solid #6a6e73;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 200px;
+    max-width: 320px;
+    background: #fff;
+}
+.cluster-domain-form input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+.cluster-domain-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: #0066cc;
+    color: #fff;
+}
+.cluster-domain-btn:hover {
+    background: #0052a3;
+}
+.cluster-domain-btn-clear {
+    background: #6a6e73;
+}
+.cluster-domain-btn-clear:hover {
+    background: #525252;
+}
+
+/* Cluster domain bar - injected at top of content (visible in showroom iframe) */
+.cluster-domain-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap;
+}
+.cluster-domain-bar label {
+    color: #fff;
+    font-size: 14px;
+    margin: 0;
+}
+.cluster-domain-bar input {
+    padding: 6px 10px;
+    border: 1px solid #6a6e73;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 220px;
+    max-width: 400px;
+    background: #fff;
+}
+.cluster-domain-bar input:focus {
+    outline: none;
+    border-color: #0066cc;
+}
