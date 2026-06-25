@@ -1,0 +1,659 @@
+/* RHDP PF6 masthead — Red Hat workshop branding */
+.header {
+  background: var(--navbar-background, #151515);
+  border-bottom: 3px solid #ee0000;
+}
+
+.navbar {
+  min-height: 3.75rem;
+  padding: 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.navbar-logo {
+  flex-shrink: 0;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+}
+
+.navbar-logo-img {
+  height: 2.75rem;
+  width: auto;
+  min-width: 8.75rem;
+  max-width: 11rem;
+  display: block;
+  object-fit: contain;
+}
+
+.workshop-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.2;
+}
+
+.workshop-brand-text .site-title {
+  font-family: "Red Hat Display", "RedHatDisplay", overpass, helvetica, arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff !important;
+  padding: 0;
+  margin: 0;
+}
+
+.workshop-footer-lab-label {
+  color: #c7c7c7;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+#topbar-nav {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+#topbar-nav .navbar-end {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.workshop-navbar-links {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  min-width: 0;
+}
+
+.workshop-navbar-lab {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.workshop-navbar-identity {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex: 0 0 auto;
+  padding-left: 0.35rem;
+  margin-left: 0.15rem;
+  border-left: 1px solid #555;
+}
+
+.workshop-quick-link {
+  color: #73bcf7;
+  font-size: 0.78rem;
+  text-decoration: none;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: "Red Hat Text", "RedHatText", helvetica, arial, sans-serif;
+}
+
+.workshop-quick-link:hover {
+  color: #a3daff;
+  border-color: #666;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.workshop-quick-link i {
+  margin-right: 0.25rem;
+}
+
+.workshop-quick-link i:only-child,
+.workshop-quick-link i:last-child:first-child {
+  margin-right: 0;
+}
+
+button.workshop-quick-link {
+  background: transparent;
+  cursor: pointer;
+  font-family: "Red Hat Text", "RedHatText", helvetica, arial, sans-serif;
+  line-height: inherit;
+}
+
+button.workshop-quick-link.workshop-terminal-toggle.is-active {
+  color: #fff;
+  background: rgba(238, 0, 0, 0.25);
+  border-color: #ee0000;
+}
+
+.workshop-quick-link--register {
+  color: #f0ab00;
+  border-color: #8a6914;
+}
+
+.workshop-navbar-sep {
+  border-left: 1px solid #555;
+  height: 1.25rem;
+  margin: 0 0.15rem;
+}
+
+.workshop-lang-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.workshop-lang-bar a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.workshop-lang-bar a:hover {
+  color: #73bcf7;
+  text-decoration: underline;
+}
+
+.workshop-lang-sep {
+  color: #6a6e73;
+  user-select: none;
+}
+
+.workshop-user-badge-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #1f3d5c;
+  color: #fff;
+  padding: 0.2rem 0.45rem 0.2rem 0.65rem;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  border: 1px solid #0066cc;
+  white-space: nowrap;
+}
+
+.workshop-user-badge-nav > .fa-user {
+  margin-right: 0.15rem;
+  color: #73bcf7;
+}
+
+.workshop-user-badge-edit {
+  background: transparent;
+  border: 0;
+  color: #73bcf7;
+  cursor: pointer;
+  padding: 0.1rem 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.workshop-user-badge-edit:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.workshop-vars-edit {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.workshop-vars-edit label {
+  color: #fff;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.workshop-vars-edit input {
+  width: 5.5rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+}
+
+.workshop-vars-edit button {
+  border: none;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+#vars-save {
+  background: #0066cc;
+  color: #fff;
+}
+
+#vars-cancel-edit {
+  background: #6a6e73;
+  color: #fff;
+}
+
+.workshop-vars-edit-btn {
+  background: transparent;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.workshop-vars-edit-btn:hover {
+  color: #fff;
+  border-color: #888;
+}
+
+/* Footer — lab deep links (Register/User live in header only) */
+.workshop-footer {
+  background: #151515 !important;
+  border-top: 1px solid #292929;
+  padding: 0 !important;
+  margin-top: auto;
+}
+
+.workshop-footer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 0.85rem 1.5rem;
+  max-width: none;
+}
+
+.workshop-footer-left,
+.workshop-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.workshop-footer-logo {
+  height: 1.85rem;
+  width: auto;
+  min-width: 7.5rem;
+  object-fit: contain;
+}
+
+.workshop-footer-lab-label {
+  color: #c7c7c7;
+  font-size: 0.82rem;
+  font-family: "Red Hat Text", "RedHatText", helvetica, arial, sans-serif;
+}
+
+.workshop-footer-sep {
+  color: #6a6e73;
+}
+
+.workshop-footer-link {
+  color: #73bcf7 !important;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+.workshop-footer-link i {
+  margin-right: 0.25rem;
+}
+
+.workshop-footer-link:hover {
+  color: #a3daff !important;
+  text-decoration: underline !important;
+}
+
+/* Hide default RHDP "Powered by Demo Platform" when workshop footer is active */
+.workshop-footer + .footer,
+.footer .poweredBy {
+  display: none;
+}
+
+/* Wider content area */
+.doc {
+  max-width: none;
+}
+
+/* Workshop content helpers */
+.workshop-register-cta {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  background: #f0f0f0;
+  border-radius: 4px;
+  border-left: 4px solid #ee0000;
+}
+
+.workshop-register-btn {
+  display: inline-block;
+  background: #ee0000;
+  color: #fff !important;
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none !important;
+  margin-bottom: 0.5rem;
+}
+
+.workshop-register-btn:hover {
+  background: #cc0000;
+  color: #fff !important;
+}
+
+.workshop-register-hint {
+  display: block;
+  font-size: 0.9rem;
+  color: #6a6e73;
+  margin-top: 0.35rem;
+}
+
+.workshop-progress {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  border-radius: 4px;
+}
+
+.workshop-progress-status {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
+.workshop-progress-status.is-success {
+  color: #3e8635;
+}
+
+.workshop-progress-status.is-error {
+  color: #c9190b;
+}
+
+.workshop-next-nav {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.workshop-next-nav a {
+  font-weight: 600;
+}
+
+.workshop-time-badge {
+  color: #6a6e73;
+  font-size: 0.95rem;
+}
+
+/* Module hero images — use horizontal space; AsciiDoc width attr is 960px */
+.doc .imageblock,
+.doc .image {
+  margin: 1rem 0 1.75rem;
+  text-align: center;
+}
+
+.doc .imageblock img,
+.doc .image img {
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+}
+
+.doc img.workshop-zoomable {
+  cursor: zoom-in;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.doc img.workshop-zoomable:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.doc .imageblock::after {
+  content: "Click to enlarge";
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6a6e73;
+  margin-top: 0.35rem;
+}
+
+.workshop-image-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(21, 21, 21, 0.92);
+  padding: 1.5rem;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+}
+
+.workshop-image-lightbox.is-open {
+  display: flex;
+}
+
+body.workshop-lightbox-open {
+  overflow: hidden;
+}
+
+.workshop-image-lightbox-figure {
+  margin: 0;
+  max-width: min(96vw, 1400px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workshop-image-lightbox-img {
+  max-width: 100%;
+  max-height: calc(92vh - 3rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.workshop-image-lightbox-caption {
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 60rem;
+}
+
+.workshop-image-lightbox-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.workshop-image-lightbox-close:hover {
+  background: rgba(238, 0, 0, 0.85);
+}
+
+/* Preserve acronyms (AI, MCP, LLM) — Antora/breadcrumbs must not title-case nav labels */
+.nav-panel .nav-link,
+.breadcrumbs li,
+.doc h1.page,
+.doc h1,
+.doc h2 {
+  text-transform: none;
+}
+
+a.workshop-lab-link {
+  color: #0066cc;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+a.workshop-lab-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1400px) {
+  .workshop-quick-link .workshop-link-label {
+    display: none;
+  }
+
+  .workshop-quick-link i {
+    margin-right: 0;
+  }
+
+  .workshop-quick-link {
+    padding: 0.3rem 0.45rem;
+  }
+
+  .workshop-quick-link--register .workshop-link-label {
+    display: inline;
+  }
+}
+
+@media (max-width: 1100px) {
+  .workshop-brand-text .site-title {
+    max-width: 9.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .navbar-logo-img {
+    min-width: 7rem;
+    max-width: 8.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .workshop-footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .workshop-brand-text .site-title {
+    font-size: 0.85rem;
+  }
+
+  .navbar-logo-img {
+    min-width: 6.5rem;
+    max-width: 8rem;
+  }
+
+  .workshop-quick-link--register .workshop-link-label {
+    display: none;
+  }
+
+  .workshop-terminal-panel {
+    height: 55vh;
+  }
+}
+
+/* Slide-up integrated oc terminal (proxied at /terminal/) */
+.workshop-terminal-panel {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 42vh;
+  min-height: 260px;
+  max-height: 72vh;
+  z-index: 1200;
+  background: #151515;
+  border-top: 3px solid #ee0000;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  flex-direction: column;
+}
+
+.workshop-terminal-panel.is-open {
+  display: flex;
+}
+
+body.workshop-terminal-open {
+  padding-bottom: 42vh;
+}
+
+.workshop-terminal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.75rem;
+  background: #292929;
+  border-bottom: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.workshop-terminal-title {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: "Red Hat Display", "RedHatDisplay", overpass, helvetica, arial, sans-serif;
+}
+
+.workshop-terminal-title code {
+  color: #73bcf7;
+  background: transparent;
+  font-size: 0.82rem;
+}
+
+.workshop-terminal-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.workshop-terminal-action {
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #73bcf7;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.workshop-terminal-action:hover {
+  color: #a3daff;
+  border-color: #777;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.workshop-terminal-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #000;
+}

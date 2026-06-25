@@ -1,25 +1,31 @@
 ---
 site:
   title: "AI Computer Vision Workshop"
+  url: https://github.com/maximilianoPizarro/showroom-ia-computer-vision
   start_page: modules::index.adoc
 
 content:
   sources:
     - url: .
       start_path: content
+      branches: HEAD
 
 ui:
   bundle:
-    url: https://github.com/rhpds/showroom_theme_rhdp/releases/download/rhdp-v0.0.2/ui-bundle.zip
+    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/patternfly-6/ui-bundle.zip
+    snapshot: true
+  supplemental_files: ./content/supplemental-ui
 
-runtime:
-  cache_dir: ./.cache/antora
+asciidoc:
+  attributes:
+    hub_domain: "%HUB_DOMAIN%"
+    east_domain: "%EAST_DOMAIN%"
+    west_domain: "%WEST_DOMAIN%"
+    user_name: "%USER_NAME%"
+    lab_name: "AI Computer Vision at the Edge"
 
 output:
   dir: ./www
 
-antora:
-  extensions:
-    - id: dev-mode
-      require: ./content/lib/dev-mode.js
-      enabled: false
+runtime:
+  cache_dir: ./.cache/antora
