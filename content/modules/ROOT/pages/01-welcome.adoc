@@ -1,0 +1,118 @@
+= Welcome and orientation
+:_content-type: PROCEDURE
+// estimated time: 5 min
+
+++++
+<span class="workshop-time-badge">⏱ ~5 min</span>
+++++
+
+Welcome to the **AI Computer Vision at the Edge** workshop. In the next hour you deploy a personal NeuroFace instance, explore OpenShift AI, discover RHCL Gateway objects, and test inference with curl.
+
+== What this pattern deploys
+
+The Validated Pattern installs **1 hub + 2 spokes** (east and west) with GitOps-managed components:
+
+[cols="2,3",options="header"]
+|===
+| Cluster | Key components
+
+| Hub
+| RHACM, ACS Central, GitLab, Developer Hub, OpenShift AI, RHCL Gateway, Vault, Showroom
+
+| East / West spokes
+| NeuroFace, YOLO PPE inference, Skupper interconnect, ambient Service Mesh
+|===
+
+== Quick access links
+
+Replace `{hub_domain}` with your hub apps domain (shown in the OCP Console).
+
+[cols="2,3",options="header"]
+|===
+| Component | URL
+
+| OCP Console (hub)
+| `https://console-openshift-console.apps.{hub_domain}`
+
+| Developer Hub
+| `https://developer-hub.apps.{hub_domain}`
+
+| GitLab
+| `https://gitlab.apps.{hub_domain}`
+
+| OpenShift AI dashboard
+| `https://rhods-dashboard-redhat-ods-applications.apps.{hub_domain}`
+
+| NeuroFace (RHCL gateway)
+| `https://neuroface.apps.{hub_domain}`
+
+| Showroom (this guide)
+| `https://showroom.apps.{hub_domain}`
+|===
+
+== Log in with your workshop user
+
+Use your assigned user (`user1` through `user30`) with password `Welcome123!`:
+
+* OCP Console — HTPasswd identity provider `workshop-users`
+* Developer Hub — Keycloak realm `backstage`
+* GitLab and DevSpaces — provisioned per user
+
+[source,sh,role=execute]
+----
+hub-login user1
+----
+
+TIP: Replace `user1` with your assigned user number throughout the workshop.
+
+== How GitOps deploys the platform
+
+ArgoCD on each cluster reads `values-hub.yaml`, `values-east.yaml`, or `values-west.yaml` and deploys applications in sync waves. Wave `0` runs first (GitOps, users), then operators, then workloads.
+
+The excerpt below shows the hub application list. Each entry becomes an ArgoCD Application.
+
+[source,yaml]
+----
+# values-hub.yaml — clusterGroup.applications (excerpt)
+applications:
+  openshift-gitops:
+    name: openshift-gitops
+    syncWave: "0"
+  platform-users:
+    name: platform-users
+    syncWave: "0"
+  observability:
+    name: observability
+    syncWave: "1"
+  acm:
+    name: acm
+    chart: acm
+    syncWave: "1"
+  developer-hub:
+    name: developer-hub
+    syncWave: "4"
+  openshift-ai-hub:
+    name: openshift-ai-hub
+    syncWave: "5"
+  neuroface-gateway:
+    name: neuroface-gateway
+    syncWave: "6"
+  showroom:
+    name: showroom
+    syncWave: "5"
+----
+
+[source,sh,role=execute]
+----
+oc get applications -n openshift-gitops -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | head -15
+----
+
+== What you learned
+
+* The pattern spans hub + east + west with GitOps-managed components
+* Workshop users log in with `userN` / `Welcome123!`
+* ArgoCD sync waves control deployment order
+
+== Next
+
+Continue with xref:02-deploy-neuroface.adoc[Module 02 — Deploy your NeuroFace from Developer Hub].

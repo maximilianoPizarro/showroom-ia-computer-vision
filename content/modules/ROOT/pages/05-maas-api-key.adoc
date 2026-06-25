@@ -1,0 +1,68 @@
+= MaaS API key and curl inference
+:_content-type: PROCEDURE
+// estimated time: 10 min
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+NeuroFace chat uses MaaS (Models as a Service) — an external LLM endpoint. Obtain an API key and test inference with curl.
+
+== MaaS configuration
+
+[source,yaml]
+----
+# charts/all/spoke-neuroface/values.yaml (excerpt)
+neuroface:
+  chat:
+    modelEndpoint: "https://maas-rhdp.apps.maas.redhatworkshops.io/v1"
+    modelName: "llama-scout-17b"
+----
+
+== Obtain the API key
+
+=== Option A — OpenShift AI dashboard
+
+Open *maas-workshop* → Llama Scout 17B connection → copy API key.
+
+=== Option B — Kubernetes Secret
+
+[source,sh,role=execute]
+----
+hub-login {user_name}
+export API_KEY=$(oc get secret openshift-ai-maas-credentials -n maas-workshop \
+  -o jsonpath='{.data.api-key}' 2>/dev/null | base64 -d)
+echo "Key length: ${#API_KEY} characters"
+----
+
+IMPORTANT: Do not share or commit API keys. Keys are loaded from Vault during pattern installation.
+
+== Test MaaS chat completion
+
+[source,sh,role=execute]
+----
+export API_KEY="${API_KEY:-$(oc get secret openshift-ai-maas-credentials -n maas-workshop -o jsonpath='{.data.api-key}' 2>/dev/null | base64 -d)}"
+curl -sk -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"llama-scout-17b","messages":[{"role":"user","content":"Explain PPE detection in one sentence"}]}' \
+  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/chat/completions | head -c 500
+echo
+----
+
+== Test NeuroFace gateway
+
+[source,sh,role=execute]
+----
+curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
+  https://neuroface.apps.{hub_domain}/
+----
+
+== What you learned
+
+* MaaS provides external LLM inference for NeuroFace chat
+* API keys flow from Vault → Secret → dashboard and backend
+* curl validates end-to-end MaaS and gateway connectivity
+
+== Next
+
+Continue with xref:06-review.adoc[Module 06 — Review and next steps].

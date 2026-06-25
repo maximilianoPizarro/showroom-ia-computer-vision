@@ -1,0 +1,68 @@
+= Review and next steps
+:_content-type: PROCEDURE
+// estimated time: 10 min
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+Congratulations — you completed the 1-hour AI Computer Vision journey.
+
+== What you deployed
+
+[cols="2,3,2",options="header"]
+|===
+| Layer | Component | CRD / API
+
+| GitOps | ArgoCD Applications | `Application`
+| Fleet | RHACM managed clusters | `ManagedCluster`
+| Developer | Developer Hub, GitLab | Backstage templates
+| AI / CV | OpenShift AI, NeuroFace | `DataScienceCluster`, `InferenceService`
+| Networking | Skupper, RHCL Gateway | `Connector`, `Gateway`, `HTTPRoute`
+|===
+
+== Key design decisions
+
+* RHCL Gateway API instead of OCP Routes — weighted multi-spoke load balancing
+* Skupper instead of VPN — application-level cross-cluster connectivity
+* Ambient Service Mesh — lower resource overhead on spokes
+* Hub-centralized observability — Kiali, Thanos, OpenTelemetry on hub
+
+== Replicate this pattern
+
+. Fork https://github.com/maximilianoPizarro/ia-computer-vision
+. Configure `values-secret.yaml` and install spokes before hub
+. Adjust `values-*.yaml` for your domains and sizing
+
+[source,yaml]
+----
+# values-hub.yaml — managedClusterGroups (excerpt)
+managedClusterGroups:
+  east:
+    name: east
+    acmlabels:
+      - name: clusterGroup
+        value: east
+  west:
+    name: west
+    acmlabels:
+      - name: clusterGroup
+        value: west
+----
+
+== Documentation
+
+* https://maximilianoPizarro.github.io/ia-computer-vision/
+* https://validatedpatterns.io/
+* https://ux.redhat.com/
+
+== Helper commands
+
+[source,sh,role=execute]
+----
+hub-login {user_name}
+neuroface-cv-status
+neuroface-spoke-status
+----
+
+Thank you for completing the workshop!

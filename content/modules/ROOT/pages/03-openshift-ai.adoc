@@ -1,0 +1,80 @@
+= OpenShift AI step-by-step
+:_content-type: PROCEDURE
+// estimated time: 10 min
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+OpenShift AI on the hub provides MaaS model connections for NeuroFace chat and the workshop playground.
+
+== Open the OpenShift AI dashboard
+
+[source,sh]
+----
+https://rhods-dashboard-redhat-ods-applications.apps.{hub_domain}
+----
+
+Log in with your workshop credentials.
+
+== Explore maas-workshop
+
+[source,sh,role=execute]
+----
+hub-login {user_name}
+oc get namespace maas-workshop
+----
+
+In the dashboard: *Data Science Projects* → *maas-workshop* → browse model connections (Llama Scout 17B, Granite 3.2, etc.).
+
+== GitOps configuration
+
+[source,yaml]
+----
+# charts/all/openshift-ai-hub/templates/all.yaml (excerpt)
+apiVersion: dscinitialization.opendatahub.io/v2
+kind: DSCInitialization
+metadata:
+  name: default-dsci
+---
+apiVersion: datasciencecluster.opendatahub.io/v2
+kind: DataScienceCluster
+metadata:
+  name: default-dsc
+spec:
+  components:
+    dashboard:
+      managementState: Managed
+    kserve:
+      managementState: Managed
+      defaultDeploymentMode: RawDeployment
+----
+
+[source,yaml]
+----
+# charts/all/openshift-ai-hub/values.yaml (excerpt)
+maas:
+  endpoint: "https://maas-rhdp.apps.maas.redhatworkshops.io"
+  credentialsSecretName: openshift-ai-maas-credentials
+  models:
+    - id: llama-scout-17b
+      displayName: Llama Scout 17B (workshop default)
+----
+
+== Verify KServe on spokes
+
+[source,sh,role=execute]
+----
+east-login {user_name}
+oc get inferenceservice -n neuroface-cv
+----
+
+== What you learned
+
+* OpenShift AI exposes MaaS models via `maas-workshop`
+* DSCInitialization and DataScienceCluster CRs are GitOps-managed
+* MaaS API keys flow from Vault → Secret → dashboard connection
+
+== Next
+
+Continue with xref:04-gateway-rhcl.adoc[Module 04 — Discover RHCL Gateway objects].

@@ -1,0 +1,87 @@
+= Discover RHCL Gateway objects
+:_content-type: PROCEDURE
+// estimated time: 10 min
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+NeuroFace traffic enters through the Gateway API on the hub — not traditional OpenShift Routes.
+
+== Inspect the Gateway CR
+
+[source,sh,role=execute]
+----
+hub-login {user_name}
+oc get gateway -n neuroface-gateway-system
+oc get gateway neuroface-gateway -n neuroface-gateway-system -o yaml | head -25
+----
+
+[source,yaml]
+----
+# charts/all/neuroface-gateway/templates/gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: neuroface-gateway
+  namespace: neuroface-gateway-system
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      port: 8080
+      protocol: HTTP
+----
+
+== Inspect HTTPRoute with 50/50 weights
+
+[source,yaml]
+----
+# charts/all/neuroface-gateway/templates/httproute-app.yaml (excerpt)
+spec:
+  rules:
+    - backendRefs:
+        - name: neuroface-app-east
+          port: 8080
+          weight: 50
+        - name: neuroface-app-west
+          port: 8080
+          weight: 50
+----
+
+[source,sh,role=execute]
+----
+oc get httproute -n neuroface-gateway-system
+oc get httproute neuroface-app-lb -n neuroface-gateway-system -o yaml | grep -A20 'backendRefs'
+----
+
+== ExternalName Services (Skupper endpoints)
+
+[source,yaml]
+----
+# charts/all/neuroface-gateway/templates/external-services.yaml (excerpt)
+spec:
+  type: ExternalName
+  externalName: neuroface-app-east.service-interconnect.svc.cluster.local
+----
+
+== Observe load balancing
+
+[source,sh,role=execute]
+----
+for i in $(seq 1 10); do
+  curl -sk -o /dev/null -w "Request $i: HTTP %{http_code}\n" \
+    https://neuroface.apps.{hub_domain}/
+done
+neuroface-cv-traffic
+----
+
+== What you learned
+
+* Gateway API CRs replace OCP Routes for NeuroFace ingress
+* HTTPRoute weights distribute traffic across east and west spokes
+* ExternalName Services bridge hub gateway to Skupper endpoints
+
+== Next
+
+Continue with xref:05-maas-api-key.adoc[Module 05 — MaaS API key and curl inference].

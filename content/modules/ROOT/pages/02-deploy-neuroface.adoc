@@ -1,0 +1,129 @@
+= Deploy your NeuroFace from Developer Hub
+:_content-type: PROCEDURE
+// estimated time: 15 min
+
+++++
+<span class="workshop-time-badge">⏱ ~15 min ★ main activity</span>
+++++
+
+This is the core workshop activity. You scaffold a personal NeuroFace instance from Developer Hub, watch the pipeline deploy to a spoke, and test PPE detection.
+
+== Open Developer Hub
+
+. Open the OCP Console on the hub cluster
+. Application menu (grid icon) → *Red Hat Developer Hub*
+. Or navigate directly:
+
+[source,sh]
+----
+https://developer-hub.apps.{hub_domain}
+----
+
+[start=4]
+. Log in with your workshop credentials (`{user_name}` / `Welcome123!`)
+
+== Browse the AI Computer Vision template
+
+. Click *Create...* in the left navigation
+. Select the *AI Computer Vision at the Edge* template
+. Review the parameters — the template is defined in the pattern Git repository:
+
+[source,yaml]
+----
+# charts/all/developer-hub/files/software-templates/ai-computer-vision.yaml (excerpt)
+metadata:
+  name: ai-computer-vision
+  title: AI Computer Vision at the Edge
+spec:
+  parameters:
+    - required: [name, owner, clusterDomain]
+      properties:
+        name:
+          title: Instance name
+          default: neuroface
+        owner:
+          title: Owner
+          ui:field: OwnerPicker
+        clusterDomain:
+          title: Hub apps domain
+          default: apps.cluster.example.com
+  steps:
+    - id: fetch
+      action: fetch:template
+    - id: publish
+      action: publish:github
+    - id: register
+      action: catalog:register
+----
+
+== Create your NeuroFace instance
+
+WARNING: This step creates real resources. Use your assigned user number in the instance name.
+
+. Select the *AI Computer Vision at the Edge* template
+. Fill in:
+** *Instance name*: `neuroface-{user_name}` (e.g. `neuroface-user1`)
+** *Owner*: your workshop user
+** *Hub apps domain*: your hub apps domain
+. Click *Create* and watch the scaffolder log
+
+== What gets deployed on the spoke
+
+[source,yaml]
+----
+# charts/all/spoke-neuroface/values.yaml (excerpt)
+neuroface:
+  chat:
+    enabled: true
+    modelEndpoint: "https://maas-rhdp.apps.maas.redhatworkshops.io/v1"
+    modelName: "llama-scout-17b"
+  ppe:
+    enabled: true
+    endpoint: "http://yolo-ppe-serving.neuroface-cv.svc:8080"
+    classes: "hardhat,safety-vest,goggles"
+    kafka:
+      enabled: true
+      bootstrap: "kafka-east-tst.service-interconnect.svc:9092"
+  route:
+    enabled: false
+----
+
+[source,yaml]
+----
+# charts/all/spoke-neuroface/templates/skupper-connector.yaml
+apiVersion: skupper.io/v2alpha1
+kind: Connector
+metadata:
+  name: neuroface-app-east
+  namespace: service-interconnect
+spec:
+  routingKey: neuroface-app-east
+  host: neuroface-spoke-gateway-istio.neuroface.svc.cluster.local
+  port: 8080
+----
+
+== Verify deployment on the spoke
+
+[source,sh,role=execute]
+----
+east-login {user_name}
+oc get pods -n neuroface
+oc get pods -n neuroface-cv
+neuroface-spoke-status
+----
+
+== Test PPE detection in the UI
+
+. Open `https://neuroface.apps.{hub_domain}`
+. Upload a photo and observe PPE bounding boxes
+. Try the chat panel (MaaS Llama model)
+
+== What you learned
+
+* Developer Hub scaffolds GitLab repos, DevSpaces workspaces, and catalog entries
+* NeuroFace on spokes uses YOLO PPE inference and Skupper connectors
+* The RHCL gateway frontends NeuroFace traffic
+
+== Next
+
+Continue with xref:03-openshift-ai.adoc[Module 03 — OpenShift AI step-by-step].
