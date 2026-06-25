@@ -8,6 +8,8 @@
 
 NeuroFace traffic enters through the Gateway API on the hub — not traditional OpenShift Routes.
 
+image::m04-gateway-routing.png[Gateway Routing,align=center,width=100%]
+
 == Inspect the Gateway CR
 
 [source,sh,role=execute]

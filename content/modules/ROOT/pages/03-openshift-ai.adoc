@@ -19,6 +19,9 @@ Log in with your workshop credentials.
 
 == Explore maas-workshop
 
+image::m03-ai-secret.png[AI Secret Flow,align=center,width=100%]
+
+
 [source,sh,role=execute]
 ----
 hub-login {user_name}

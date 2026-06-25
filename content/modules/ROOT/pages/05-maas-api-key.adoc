@@ -10,6 +10,9 @@ NeuroFace chat uses MaaS (Models as a Service) — an external LLM endpoint. Obt
 
 == MaaS configuration
 
+image::m05-maas-inference.png[MaaS Inference Flow,align=center,width=100%]
+
+
 [source,yaml]
 ----
 # charts/all/spoke-neuroface/values.yaml (excerpt)

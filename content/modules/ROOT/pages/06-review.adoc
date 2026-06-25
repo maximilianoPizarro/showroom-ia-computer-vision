@@ -10,6 +10,9 @@ Congratulations — you completed the 1-hour AI Computer Vision journey.
 
 == What you deployed
 
+image::m06-gitops-sync.png[GitOps Synchronization,align=center,width=100%]
+
+
 [cols="2,3,2",options="header"]
 |===
 | Layer | Component | CRD / API

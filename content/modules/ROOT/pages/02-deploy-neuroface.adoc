@@ -24,6 +24,9 @@ https://developer-hub.apps.{hub_domain}
 
 == Browse the AI Computer Vision template
 
+image::m02-deployment.png[Deployment Flow,align=center,width=100%]
+
+
 . Click *Create...* in the left navigation
 . Select the *AI Computer Vision at the Edge* template
 . Review the parameters — the template is defined in the pattern Git repository:
