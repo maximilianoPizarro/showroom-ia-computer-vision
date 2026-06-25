@@ -32,7 +32,7 @@ Open *maas-workshop* → Llama Scout 17B connection → copy API key.
 
 [source,sh,role=execute]
 ----
-hub-login {user_name}
+hub-login %USER_NAME%
 export API_KEY=$(oc get secret openshift-ai-maas-credentials -n maas-workshop \
   -o jsonpath='{.data.api-key}' 2>/dev/null | base64 -d)
 echo "Key length: ${#API_KEY} characters"
@@ -52,12 +52,78 @@ curl -sk -H "Authorization: Bearer $API_KEY" \
 echo
 ----
 
+.Expected output (truncated)
+[source,json]
+----
+{
+  "id": "chatcmpl-xxx",
+  "object": "chat.completion",
+  "choices": [{
+    "message": {
+      "role": "assistant",
+      "content": "PPE detection uses computer vision..."
+    }
+  }]
+}
+----
+
+== Test with different models
+
+[source,sh,role=execute]
+----
+curl -sk -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"granite-3-2-8b-instruct","messages":[{"role":"user","content":"What is YOLO object detection?"}],"max_tokens":100}' \
+  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/chat/completions | python3 -m json.tool 2>/dev/null | head -20
+----
+
+.Expected output (truncated)
+[source,json]
+----
+{
+  "id": "chatcmpl-xxx",
+  "object": "chat.completion",
+  "choices": [{
+    "message": {
+      "role": "assistant",
+      "content": "YOLO (You Only Look Once) is a real-time object detection..."
+    }
+  }]
+}
+----
+
+== List available models
+
+[source,sh,role=execute]
+----
+curl -sk -H "Authorization: Bearer $API_KEY" \
+  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/models | python3 -m json.tool 2>/dev/null | head -20
+----
+
+.Expected output (truncated)
+[source,json]
+----
+{
+  "data": [
+    {"id": "llama-scout-17b", "object": "model"},
+    {"id": "granite-3-2-8b-instruct", "object": "model"},
+    ...
+  ]
+}
+----
+
 == Test NeuroFace gateway
 
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
-  https://neuroface.apps.{hub_domain}/
+  https://neuroface.apps.%HUB_DOMAIN%/
+----
+
+.Expected output
+[source,text]
+----
+NeuroFace gateway: HTTP 200
 ----
 
 == What you learned
@@ -68,4 +134,4 @@ curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
 
 == Next
 
-Continue with xref:06-review.adoc[Module 06 — Review and next steps].
+Continue with xref:06-vault-secrets.adoc[Module 06 — Review and next steps].

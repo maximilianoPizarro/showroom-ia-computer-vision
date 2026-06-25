@@ -4,4 +4,5 @@
 * xref:03-openshift-ai.adoc[]
 * xref:04-gateway-rhcl.adoc[]
 * xref:05-maas-api-key.adoc[]
-* xref:06-review.adoc[]
+* xref:06-vault-secrets.adoc[]
+* xref:07-review.adoc[]

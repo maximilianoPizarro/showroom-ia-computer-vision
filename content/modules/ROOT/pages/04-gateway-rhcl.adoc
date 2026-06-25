@@ -14,7 +14,7 @@ image::m04-gateway-routing.png[Gateway Routing,align=center,width=100%]
 
 [source,sh,role=execute]
 ----
-hub-login {user_name}
+hub-login %USER_NAME%
 oc get gateway -n neuroface-gateway-system
 oc get gateway neuroface-gateway -n neuroface-gateway-system -o yaml | head -25
 ----
@@ -73,9 +73,59 @@ spec:
 ----
 for i in $(seq 1 10); do
   curl -sk -o /dev/null -w "Request $i: HTTP %{http_code}\n" \
-    https://neuroface.apps.{hub_domain}/
+    https://neuroface.apps.%HUB_DOMAIN%/
 done
 neuroface-cv-traffic
+----
+
+.Expected output
+[source,text]
+----
+Request 1: HTTP 200
+Request 2: HTTP 200
+...
+Request 10: HTTP 200
+----
+
+TIP: If you get HTTP 503, the spoke NeuroFace pods may not be running yet. Verify with `oc get pods -n neuroface` on the spoke.
+
+=== Inspect response headers
+
+[source,sh,role=execute]
+----
+curl -sk -D- https://neuroface.apps.%HUB_DOMAIN%/ 2>/dev/null | head -15
+----
+
+.Expected output
+[source,text]
+----
+HTTP/2 200
+server: istio-envoy
+x-envoy-upstream-service-time: ...
+...
+----
+
+== Kuadrant AuthPolicy (future extension)
+
+[source,yaml]
+----
+# charts/all/neuroface-gateway/templates/authpolicy.yaml (future extension)
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: neuroface-auth
+  namespace: neuroface-gateway-system
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: neuroface-app-lb
+  rules:
+    authentication:
+      apikey:
+        selector:
+          matchLabels:
+            kuadrant.io/apikeys-by: neuroface-api
 ----
 
 == What you learned

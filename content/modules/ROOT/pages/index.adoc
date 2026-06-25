@@ -37,7 +37,7 @@ neuroface-spoke-status
 
 TIP: Replace `user1` with your assigned user number.
 
-== Workshop modules (60 minutes)
+== Workshop modules (70 minutes)
 
 [cols="1,3,1",options="header"]
 |===
@@ -48,7 +48,8 @@ TIP: Replace `user1` with your assigned user number.
 | 03 | xref:03-openshift-ai.adoc[OpenShift AI step-by-step] | 10 min
 | 04 | xref:04-gateway-rhcl.adoc[Discover RHCL Gateway objects] | 10 min
 | 05 | xref:05-maas-api-key.adoc[MaaS API key and curl inference] | 10 min
-| 06 | xref:06-review.adoc[Review and next steps] | 10 min
+| 06 | xref:06-vault-secrets.adoc[Vault and secrets management] | 10 min
+| 07 | xref:07-review.adoc[Review and next steps] | 10 min
 |===
 
 == Get started

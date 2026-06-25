@@ -16,11 +16,11 @@ This is the core workshop activity. You scaffold a personal NeuroFace instance f
 
 [source,sh]
 ----
-https://developer-hub.apps.{hub_domain}
+https://developer-hub.apps.%HUB_DOMAIN%
 ----
 
 [start=4]
-. Log in with your workshop credentials (`{user_name}` / `Welcome123!`)
+. Log in with your workshop credentials (`%USER_NAME%` / `Welcome123!`)
 
 == Browse the AI Computer Vision template
 
@@ -65,7 +65,7 @@ WARNING: This step creates real resources. Use your assigned user number in the 
 
 . Select the *AI Computer Vision at the Edge* template
 . Fill in:
-** *Instance name*: `neuroface-{user_name}` (e.g. `neuroface-user1`)
+** *Instance name*: `neuroface-%USER_NAME%` (e.g. `neuroface-user1`)
 ** *Owner*: your workshop user
 ** *Hub apps domain*: your hub apps domain
 . Click *Create* and watch the scaffolder log
@@ -109,15 +109,44 @@ spec:
 
 [source,sh,role=execute]
 ----
-east-login {user_name}
+east-login %USER_NAME%
 oc get pods -n neuroface
 oc get pods -n neuroface-cv
 neuroface-spoke-status
 ----
 
+=== Check pod readiness
+
+[source,sh,role=execute]
+----
+oc get pods -n neuroface -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,STATUS:.status.phase
+----
+
+.Expected output
+[source,text]
+----
+NAME                              READY   STATUS
+neuroface-backend-xxx             true    Running
+neuroface-frontend-xxx            true    Running
+----
+
+=== Test NeuroFace endpoint from the spoke
+
+[source,sh,role=execute]
+----
+curl -sk -o /dev/null -w "NeuroFace spoke east: HTTP %{http_code}\n" \
+  https://neuroface.apps.%HUB_DOMAIN%/
+----
+
+.Expected output
+[source,text]
+----
+NeuroFace spoke east: HTTP 200
+----
+
 == Test PPE detection in the UI
 
-. Open `https://neuroface.apps.{hub_domain}`
+. Open `https://neuroface.apps.%HUB_DOMAIN%`
 . Upload a photo and observe PPE bounding boxes
 . Try the chat panel (MaaS Llama model)
 

@@ -28,29 +28,27 @@ The Validated Pattern installs **1 hub + 2 spokes** (east and west) with GitOps-
 
 == Quick access links
 
-Replace `{hub_domain}` with your hub apps domain (shown in the OCP Console).
-
 [cols="2,3",options="header"]
 |===
 | Component | URL
 
 | OCP Console (hub)
-| `https://console-openshift-console.apps.{hub_domain}`
+| `https://console-openshift-console.apps.%HUB_DOMAIN%`
 
 | Developer Hub
-| `https://developer-hub.apps.{hub_domain}`
+| `https://developer-hub.apps.%HUB_DOMAIN%`
 
 | GitLab
-| `https://gitlab.apps.{hub_domain}`
+| `https://gitlab.apps.%HUB_DOMAIN%`
 
 | OpenShift AI dashboard
-| `https://rhods-dashboard-redhat-ods-applications.apps.{hub_domain}`
+| `https://rhods-dashboard-redhat-ods-applications.apps.%HUB_DOMAIN%`
 
 | NeuroFace (RHCL gateway)
-| `https://neuroface.apps.{hub_domain}`
+| `https://neuroface.apps.%HUB_DOMAIN%`
 
 | Showroom (this guide)
-| `https://showroom.apps.{hub_domain}`
+| `https://showroom.apps.%HUB_DOMAIN%`
 |===
 
 == Log in with your workshop user
@@ -67,6 +65,42 @@ hub-login user1
 ----
 
 TIP: Replace `user1` with your assigned user number throughout the workshop.
+
+=== Verify platform health
+
+Check that ArgoCD applications are synced and healthy:
+
+[source,sh,role=execute]
+----
+oc get applications.argoproj.io -n vp-gitops -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status
+----
+
+.Expected output
+[source,text]
+----
+NAME                         SYNC        HEALTH
+acm                          Synced      Healthy
+vault                        Synced      Healthy
+platform-users               Synced      Healthy
+...
+----
+
+=== Verify hub services are reachable
+
+[source,sh,role=execute]
+----
+curl -sk -o /dev/null -w "Hub Console: HTTP %{http_code}\n" https://console-openshift-console.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "ArgoCD:      HTTP %{http_code}\n" https://vp-gitops-server-vp-gitops.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Vault:       HTTP %{http_code}\n" https://vault-vault.apps.%HUB_DOMAIN%/
+----
+
+.Expected output
+[source,text]
+----
+Hub Console: HTTP 200
+ArgoCD:      HTTP 200
+Vault:       HTTP 200
+----
 
 == How GitOps deploys the platform
 

@@ -1,0 +1,137 @@
+= Review and next steps
+:_content-type: PROCEDURE
+// estimated time: 10 min
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+Congratulations — you completed the 1-hour AI Computer Vision journey.
+
+== What you deployed
+
+image::m06-gitops-sync.png[GitOps Synchronization,align=center,width=100%]
+
+
+[cols="2,3,2",options="header"]
+|===
+| Layer | Component | CRD / API
+
+| GitOps | ArgoCD Applications | `Application`
+| Fleet | RHACM managed clusters | `ManagedCluster`
+| Developer | Developer Hub, GitLab | Backstage templates
+| AI / CV | OpenShift AI, NeuroFace | `DataScienceCluster`, `InferenceService`
+| Networking | Skupper, RHCL Gateway | `Connector`, `Gateway`, `HTTPRoute`
+|===
+
+== Verify all services
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+echo "=== Console Links Health Check ==="
+for svc in \
+  "console-openshift-console" \
+  "developer-hub" \
+  "gitlab" \
+  "rhods-dashboard-redhat-ods-applications" \
+  "grafana" \
+  "vault-vault" \
+  "vp-gitops-server-vp-gitops" \
+  "showroom-showroom"; do
+  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.apps.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
+  printf "%-45s %s\n" "$svc" "$CODE"
+done
+----
+
+.Expected output
+[source,text]
+----
+=== Console Links Health Check ===
+console-openshift-console                     200
+developer-hub                                 200
+gitlab                                        200
+rhods-dashboard-redhat-ods-applications       200
+grafana                                       200
+vault-vault                                   200
+vp-gitops-server-vp-gitops                    200
+showroom-showroom                             200
+----
+
+== Key design decisions
+
+* RHCL Gateway API instead of OCP Routes — weighted multi-spoke load balancing
+* Skupper instead of VPN — application-level cross-cluster connectivity
+* Ambient Service Mesh — lower resource overhead on spokes
+* Hub-centralized observability — Kiali, Thanos, OpenTelemetry on hub
+
+== Replicate this pattern
+
+. Fork https://github.com/maximilianoPizarro/ia-computer-vision
+. Configure `values-secret.yaml` and install spokes before hub
+. Adjust `values-*.yaml` for your domains and sizing
+
+[source,yaml]
+----
+# values-hub.yaml — managedClusterGroups (excerpt)
+managedClusterGroups:
+  east:
+    name: east
+    acmlabels:
+      - name: clusterGroup
+        value: east
+  west:
+    name: west
+    acmlabels:
+      - name: clusterGroup
+        value: west
+----
+
+=== Pattern CR
+
+[source,yaml]
+----
+# pattern.yaml — Pattern CR for operator-driven install
+apiVersion: gitops.hybrid-cloud-patterns.io/v1alpha1
+kind: Pattern
+metadata:
+  name: ia-computer-vision
+  namespace: openshift-operators
+spec:
+  clusterGroupName: hub
+  gitSpec:
+    targetRepo: https://github.com/maximilianoPizarro/ia-computer-vision.git
+    targetRevision: main
+  multiSourceConfig:
+    enabled: true
+    clusterGroupChartVersion: "0.9.*"
+    helmRepoUrl: https://charts.validatedpatterns.io
+  extraParameters:
+    - name: spokeCredentials.mode
+      value: inline
+    - name: spokeCredentials.clusters.east.token
+      value: "<EAST_SA_TOKEN>"
+    - name: spokeCredentials.clusters.east.apiUrl
+      value: "https://api.<EAST_DOMAIN>:6443"
+    - name: spokeCredentials.clusters.west.token
+      value: "<WEST_SA_TOKEN>"
+    - name: spokeCredentials.clusters.west.apiUrl
+      value: "https://api.<WEST_DOMAIN>:6443"
+----
+
+== Documentation
+
+* https://maximilianoPizarro.github.io/ia-computer-vision/
+* https://validatedpatterns.io/
+* https://ux.redhat.com/
+
+== Helper commands
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+neuroface-cv-status
+neuroface-spoke-status
+----
+
+Thank you for completing the workshop!

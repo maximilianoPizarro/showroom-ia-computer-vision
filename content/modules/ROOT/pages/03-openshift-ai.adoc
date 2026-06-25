@@ -12,7 +12,7 @@ OpenShift AI on the hub provides MaaS model connections for NeuroFace chat and t
 
 [source,sh]
 ----
-https://rhods-dashboard-redhat-ods-applications.apps.{hub_domain}
+https://rhods-dashboard-redhat-ods-applications.apps.%HUB_DOMAIN%
 ----
 
 Log in with your workshop credentials.
@@ -24,7 +24,7 @@ image::m03-ai-secret.png[AI Secret Flow,align=center,width=100%]
 
 [source,sh,role=execute]
 ----
-hub-login {user_name}
+hub-login %USER_NAME%
 oc get namespace maas-workshop
 ----
 
@@ -68,8 +68,40 @@ maas:
 
 [source,sh,role=execute]
 ----
-east-login {user_name}
+east-login %USER_NAME%
 oc get inferenceservice -n neuroface-cv
+----
+
+=== Check DataScienceCluster and InferenceService status
+
+[source,sh,role=execute]
+----
+oc get datasciencecluster -n redhat-ods-applications -o custom-columns=NAME:.metadata.name,PHASE:.status.phase
+oc get inferenceservice -n neuroface-cv -o custom-columns=NAME:.metadata.name,READY:.status.conditions[0].status
+----
+
+.Expected output
+[source,text]
+----
+NAME          PHASE
+default-dsc   Ready
+
+NAME                    READY
+yolo-ppe-serving        True
+----
+
+== Test MaaS from hub
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+curl -sk https://rhods-dashboard-redhat-ods-applications.apps.%HUB_DOMAIN%/ -o /dev/null -w "OpenShift AI dashboard: HTTP %{http_code}\n"
+----
+
+.Expected output
+[source,text]
+----
+OpenShift AI dashboard: HTTP 200
 ----
 
 == What you learned
