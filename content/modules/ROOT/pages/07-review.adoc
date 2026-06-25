@@ -110,13 +110,13 @@ spec:
     - name: spokeCredentials.mode
       value: inline
     - name: spokeCredentials.clusters.east.token
-      value: "<EAST_SA_TOKEN>"
+      value: "<token>"
     - name: spokeCredentials.clusters.east.apiUrl
-      value: "https://api.<EAST_DOMAIN>:6443"
+      value: "https://api.%EAST_DOMAIN%:6443"
     - name: spokeCredentials.clusters.west.token
-      value: "<WEST_SA_TOKEN>"
+      value: "<token>"
     - name: spokeCredentials.clusters.west.apiUrl
-      value: "https://api.<WEST_DOMAIN>:6443"
+      value: "https://api.%WEST_DOMAIN%:6443"
 ----
 
 == Documentation

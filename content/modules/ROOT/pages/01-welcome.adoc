@@ -48,7 +48,7 @@ The Validated Pattern installs **1 hub + 2 spokes** (east and west) with GitOps-
 | `https://neuroface.%HUB_DOMAIN%`
 
 | Showroom (this guide)
-| `https://showroom.%HUB_DOMAIN%`
+| `https://showroom-showroom.%HUB_DOMAIN%`
 |===
 
 == Log in with your workshop user
