@@ -1,62 +1,10 @@
-<link rel="stylesheet" href="{{uiRootPath}}/css/site-extra.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="icon" href="{{uiRootPath}}/img/favicon.ico" type="image/x-icon">
-
-<script>
-(function() {
-  var VARS = [
-    { key: 'CLUSTER_DOMAIN', placeholder: '%HUB_DOMAIN%', label: 'Hub domain' },
-    { key: 'EAST_DOMAIN',    placeholder: '%EAST_DOMAIN%', label: 'East domain' },
-    { key: 'WEST_DOMAIN',    placeholder: '%WEST_DOMAIN%', label: 'West domain' },
-    { key: 'USER_NAME',      placeholder: '%USER_NAME%',   label: 'Username' }
-  ];
-  function esc(s) { return s.replace(/[.*+?^${}()|[\]\]/g, '\$&'); }
-  function get(k) { return localStorage.getItem(k) || ''; }
-  function set(k,v) { localStorage.setItem(k, v); }
-  function getSearchParams() {
-    var params = new URLSearchParams(window.location.search);
-    try {
-      if (window.parent && window.parent !== window) {
-        var pp = new URLSearchParams(window.parent.location.search);
-        pp.forEach(function(val, key) { if (!params.has(key)) params.set(key, val); });
-      }
-    } catch(e) {}
-    return params;
-  }
-  function replacePlaceholders() {
-    VARS.forEach(function(v) {
-      var val = get(v.key);
-      if (!val) return;
-      var re = new RegExp(esc(v.placeholder), 'g');
-      document.querySelectorAll('a[href*="' + v.placeholder + '"]').forEach(function(a) {
-        var h = a.getAttribute('href');
-        if (h) a.setAttribute('href', h.replace(re, val));
-      });
-      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-      var nodes = [];
-      while (walker.nextNode()) {
-        if (walker.currentNode.textContent.indexOf(v.placeholder) !== -1) nodes.push(walker.currentNode);
-      }
-      nodes.forEach(function(n) { n.textContent = n.textContent.replace(re, val); });
-      document.querySelectorAll('code, pre, strong, em, span, p, li, td').forEach(function(el) {
-        if (el.innerHTML.indexOf(v.placeholder) !== -1) el.innerHTML = el.innerHTML.replace(re, val);
-      });
-    });
-  }
-  function init() {
-    var params = getSearchParams();
-    VARS.forEach(function(v) {
-      var qp = params.get(v.key);
-      if (qp) { set(v.key, qp); }
-    });
-    if (get('CLUSTER_DOMAIN')) {
-      if (!get('EAST_DOMAIN')) set('EAST_DOMAIN', get('CLUSTER_DOMAIN'));
-      if (!get('WEST_DOMAIN')) set('WEST_DOMAIN', get('CLUSTER_DOMAIN'));
-    }
-    replacePlaceholders();
-    [100, 500, 1000, 2000].forEach(function(ms) { setTimeout(replacePlaceholders, ms); });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-})();
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Red+Hat+Text:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{uiRootPath}}/css/custom.css">
+<meta name="workshop-registration-url" content="https://workshop-registration.{{#if page.attributes.hub_domain}}{{page.attributes.hub_domain}}{{else}}%HUB_DOMAIN%{{/if}}">
+<meta name="workshop-hub-domain" content="{{#if page.attributes.hub_domain}}{{page.attributes.hub_domain}}{{else}}%HUB_DOMAIN%{{/if}}">
+<meta name="workshop-east-domain" content="{{#if page.attributes.east_domain}}{{page.attributes.east_domain}}{{else}}%EAST_DOMAIN%{{/if}}">
+<meta name="workshop-west-domain" content="{{#if page.attributes.west_domain}}{{page.attributes.west_domain}}{{else}}%WEST_DOMAIN%{{/if}}">

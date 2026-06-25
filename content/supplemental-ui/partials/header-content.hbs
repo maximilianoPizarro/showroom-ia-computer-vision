@@ -1,121 +1,56 @@
 <header class="header">
   <nav class="navbar">
     <div class="navbar-brand">
-      <a class="navbar-item" href="https://www.redhat.com" target="_blank" style="margin-left: 2.5%; width: 224px">
-        <img src="{{{uiRootPath}}}/img/Logo-OSC_with_padding.png" alt="Red Hat" style="height: 40px; width: auto;">
+      <a class="navbar-item navbar-logo" href="https://www.redhat.com" target="_blank" rel="noopener noreferrer" title="Red Hat">
+        <img src="{{uiRootPath}}/img/logo-redhat.svg" alt="Red Hat" class="navbar-logo-img" width="140" height="33">
       </a>
-      <a class="navbar-item site-title" target="__blank" style="color: #fff !important;" href="{{{or site.url (or siteRootUrl siteRootPath)}}}">{{site.title}}</a>
+      <div class="workshop-brand-text">
+        <a class="navbar-item site-title" href="{{{relativize 'index.html'}}}">{{site.title}}</a>
+      </div>
     </div>
     <div id="topbar-nav" class="navbar-menu">
       <div class="navbar-end">
-        <div class="navbar-item" style="gap:8px;flex-wrap:wrap;align-items:center;">
-          <a id="link-console" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="OpenShift Console"><i class="fa fa-cube" style="margin-right:3px;"></i>Console</a>
-          <a id="link-devhub" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="Developer Hub"><i class="fa fa-th-large" style="margin-right:3px;"></i>Dev Hub</a>
-          <a id="link-gitlab" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="GitLab"><i class="fa fa-code-fork" style="margin-right:3px;"></i>GitLab</a>
-          <a id="link-devspaces" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="DevSpaces"><i class="fa fa-cloud" style="margin-right:3px;"></i>DevSpaces</a>
-          <a id="link-ocpai" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="OpenShift AI"><i class="fa fa-flask" style="margin-right:3px;"></i>OCP AI</a>
-          <span style="border-left:1px solid #555;height:20px;margin:0 4px;"></span>
-          <span id="user-badge" style="display:none;background:#292929;color:#fff;padding:4px 12px;border-radius:16px;font-size:0.85rem;border:1px solid #444;">
-            <i class="fa fa-user" style="margin-right:4px;"></i>
-            <span id="user-badge-name"></span>
-          </span>
-          <div id="vars-edit-panel" style="display:none;gap:8px;flex-wrap:wrap;align-items:center;">
-            <label style="color:#fff;font-size:0.85rem;">User:</label>
-            <input type="text" id="user-name-input" style="width:80px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="user1">
-            <button type="button" id="vars-save" style="background:#ee0000;color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;">Save</button>
-            <button type="button" id="vars-cancel-edit" style="background:#6a6e73;color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;">Cancel</button>
+        <div class="navbar-item workshop-navbar-links">
+          <div class="workshop-navbar-lab">
+            <a id="link-console" href="#" target="_blank" rel="noopener noreferrer" class="workshop-quick-link" title="OpenShift Console">
+              <i class="fa fa-cube"></i><span class="workshop-link-label">Console</span>
+            </a>
+            <a id="link-developer-hub" href="#" target="_blank" rel="noopener noreferrer" class="workshop-quick-link" title="Developer Hub">
+              <i class="fa fa-th-large"></i><span class="workshop-link-label">Dev Hub</span>
+            </a>
+            <a id="link-gitea" href="#" target="_blank" rel="noopener noreferrer" class="workshop-quick-link" title="GitLab">
+              <i class="fa fa-gitlab"></i><span class="workshop-link-label">GitLab</span>
+            </a>
+            <a id="link-devspaces" href="#" target="_blank" rel="noopener noreferrer" class="workshop-quick-link" title="DevSpaces">
+              <i class="fa fa-cloud"></i><span class="workshop-link-label">DevSpaces</span>
+            </a>
+            <a id="link-openshift-ai" href="#" target="_blank" rel="noopener noreferrer" class="workshop-quick-link" title="OpenShift AI dashboard">
+              <i class="fa fa-magic"></i><span class="workshop-link-label">OCP AI</span>
+            </a>
+            <button type="button" id="workshop-terminal-toggle" class="workshop-quick-link workshop-terminal-toggle" title="Integrated oc terminal — reconnects automatically when switching browser tabs" aria-expanded="false" aria-controls="workshop-terminal-panel">
+              <i class="fa fa-terminal"></i><span class="workshop-link-label">Terminal</span>
+            </button>
           </div>
-          <button type="button" id="vars-edit-btn" title="Change user" style="display:none;background:transparent;color:#ccc;border:1px solid #555;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;">
-            <i class="fa fa-pencil"></i>
-          </button>
-          <a href="https://github.com/maximilianoPizarro/ia-computer-vision" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="Register"><i class="fa fa-github" style="margin-right:3px;"></i>Register</a>
+          <div class="workshop-navbar-identity">
+            <a id="workshop-register-link" href="https://workshop-registration.%HUB_DOMAIN%/?USER_NAME=%USER_NAME%" class="workshop-quick-link workshop-quick-link--register" title="Workshop registration">
+              <i class="fa fa-id-badge"></i><span class="workshop-link-label">Register</span>
+            </a>
+            <span id="user-badge" class="workshop-user-badge-nav" style="display:none;">
+              <i class="fa fa-user"></i>
+              <span id="user-badge-name"></span>
+              <button type="button" id="vars-edit-btn" title="Change lab user" class="workshop-user-badge-edit" aria-label="Change lab user">
+                <i class="fa fa-pencil"></i>
+              </button>
+            </span>
+            <div id="vars-edit-panel" class="workshop-vars-edit" style="display:none;">
+              <label for="user-name-input">User:</label>
+              <input type="text" id="user-name-input" placeholder="user1">
+              <button type="button" id="vars-save">Save</button>
+              <button type="button" id="vars-cancel-edit">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </nav>
 </header>
-<script>
-(function() {
-  function getSearchParams() {
-    var params = new URLSearchParams(window.location.search);
-    try {
-      if (window.parent && window.parent !== window) {
-        var pp = new URLSearchParams(window.parent.location.search);
-        pp.forEach(function(val, key) { if (!params.has(key)) params.set(key, val); });
-      }
-    } catch(e) {}
-    return params;
-  }
-
-  function init() {
-    var badge = document.getElementById('user-badge');
-    var badgeName = document.getElementById('user-badge-name');
-    var editPanel = document.getElementById('vars-edit-panel');
-    var editBtn = document.getElementById('vars-edit-btn');
-    var ui = document.getElementById('user-name-input');
-    var save = document.getElementById('vars-save');
-    var cancelEdit = document.getElementById('vars-cancel-edit');
-
-    var params = getSearchParams();
-    var qpDomain = params.get('CLUSTER_DOMAIN');
-    var qpUser = params.get('USER_NAME');
-    if (qpDomain) localStorage.setItem('CLUSTER_DOMAIN', qpDomain);
-    if (qpUser) localStorage.setItem('USER_NAME', qpUser);
-
-    var storedUser = localStorage.getItem('USER_NAME') || '';
-
-    if (storedUser && badge && badgeName) {
-      badgeName.textContent = storedUser;
-      badge.style.display = 'inline';
-      if (editBtn) editBtn.style.display = 'inline-block';
-      if (editPanel) editPanel.style.display = 'none';
-    } else {
-      if (badge) badge.style.display = 'none';
-      if (editBtn) editBtn.style.display = 'none';
-      if (editPanel) editPanel.style.display = 'flex';
-      if (ui) ui.value = '';
-    }
-
-    if (editBtn) editBtn.onclick = function() {
-      badge.style.display = 'none';
-      editBtn.style.display = 'none';
-      editPanel.style.display = 'flex';
-      if (ui) ui.value = storedUser;
-      ui.focus();
-    };
-
-    if (cancelEdit) cancelEdit.onclick = function() {
-      editPanel.style.display = 'none';
-      if (storedUser) {
-        badge.style.display = 'inline';
-        editBtn.style.display = 'inline-block';
-      }
-    };
-
-    if (save) save.onclick = function() {
-      var u = (ui.value || '').trim();
-      if (u) {
-        localStorage.setItem('USER_NAME', u);
-        location.reload();
-      }
-    };
-
-    var domain = localStorage.getItem('CLUSTER_DOMAIN') || '';
-    if (domain) {
-      var lc = document.getElementById('link-console');
-      var ld = document.getElementById('link-devhub');
-      var lg = document.getElementById('link-gitlab');
-      var ls = document.getElementById('link-devspaces');
-      var la = document.getElementById('link-ocpai');
-      if (lc) lc.href = 'https://console-openshift-console.' + domain;
-      if (ld) ld.href = 'https://developer-hub.' + domain;
-      if (lg) lg.href = 'https://gitlab.' + domain;
-      if (ls) ls.href = 'https://devspaces.' + domain;
-      if (la) la.href = 'https://rhods-dashboard-redhat-ods-applications.' + domain;
-    }
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-})();
-</script>
