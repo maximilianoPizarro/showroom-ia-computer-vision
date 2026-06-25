@@ -1,0 +1,124 @@
+= Welcome to AI Computer Vision at the Edge
+:_content-type: CONCEPT
+
+++++
+<span class="workshop-time-badge">⏱ ~5 min</span>
+++++
+
+[.lead]
+*You are about to deploy AI-powered PPE detection across a distributed edge fleet.*
+
+In the next few hours you will operate a production-grade platform that federates computer-vision inference across multiple Red Hat OpenShift Container Platform (OCP) clusters — detecting hardhats, safety vests, and goggles in real time using YOLO and OpenVINO models served by Red Hat OpenShift AI (RHOAI).
+
+== What you will accomplish
+
+By the end of this workshop you will have:
+
+* Explored a *hub-spoke fleet* managed by Red Hat Advanced Cluster Management for Kubernetes (RHACM)
+* Deployed *NeuroFace* — a multimodal AI application that runs PPE safety detection, face recognition, and object detection
+* Inspected *KServe InferenceServices* and *OpenVINO Model Server (OVMS)* serving real ML models
+* Connected spoke clusters to the hub with *Skupper Service Interconnect*
+* Reviewed *security posture* with Red Hat Advanced Cluster Security for Kubernetes (RHACS) and HashiCorp Vault
+* Observed cross-cluster traffic through *Service Mesh 3*, *Grafana*, and *Kiali*
+* Created a project from a *Developer Hub* software template
+
+== Architecture at a glance
+
+The pattern deploys three clusters in a hub-and-spoke topology:
+
+[cols="1,2,3",options="header"]
+|===
+| Cluster | Role | Highlights
+
+| *Hub*
+| Fleet control plane
+| RHACM, Vault, RHACS Central, Developer Hub, GitLab, OpenShift AI, Quay, Keycloak, NeuroFace gateway
+
+| *East spoke*
+| Edge inference
+| NeuroFace, YOLO PPE, OVMS, Skupper, Service Mesh ambient, observability stack
+
+| *West spoke*
+| Edge inference
+| Same as east — traffic load-balanced 50/50 via the hub Gateway API HTTPRoute
+|===
+
+== Time estimates
+
+[cols="1,3,1",options="header"]
+|===
+| Module | Topic | Time
+
+| 01 | Welcome (this page) | ~5 min
+| 02 | Platform Architecture | ~10 min
+| 03 | Fleet Management with ACM | ~15 min
+| 04 | Developer Hub & Templates | ~15 min
+| 05 | NeuroFace CV Inference ★ | ~30 min
+| 06 | Model Serving with OpenShift AI | ~15 min
+| 07 | Cross-Cluster Skupper | ~10 min
+| 08 | Security — ACS & Vault | ~15 min
+| 09 | Observability & Mesh | ~15 min
+| 10 | What's Next | ~5 min
+|===
+
+Total estimated time: *~2.5 hours* (hands-on) or *~75 minutes* (overview-only tour).
+
+== Quick access links
+
+Open these consoles using your assigned workshop user (`user1` through `user30`) and password `Welcome123!`.
+
+[cols="1,2",options="header"]
+|===
+| Service | URL
+
+| OCP Console (Hub)
+| `https://console-openshift-console.apps.{hub_domain}`
+
+| Developer Hub
+| `https://developer-hub.apps.{hub_domain}`
+
+| GitLab
+| `https://gitlab.apps.{hub_domain}`
+
+| NeuroFace UI
+| `https://neuroface.apps.{hub_domain}`
+
+| NeuroFace CV (inference)
+| `https://neuroface-cv.apps.{hub_domain}`
+
+| Grafana
+| `https://grafana.apps.{hub_domain}`
+
+| ACS Central
+| `https://central-stackrox.apps.{hub_domain}`
+
+| East Console
+| `https://console-openshift-console.apps.{east_domain}`
+
+| West Console
+| `https://console-openshift-console.apps.{west_domain}`
+|===
+
+== Lab terminal
+
+The embedded terminal on the right is pre-configured with helper commands. Try logging in now:
+
+[source,sh,role=execute]
+----
+hub-login user1
+----
+
+[source,sh,role=execute]
+----
+oc whoami
+----
+
+TIP: You can switch to any cluster at any time using `hub-login`, `east-login`, or `west-login`.
+
+== What you learned
+
+* The workshop deploys AI-powered PPE detection across a three-cluster fleet
+* Ten modules take you from architecture through hands-on AI inference and platform operations
+* Helper commands in the lab terminal give you quick access to every cluster
+
+xref:02-platform-architecture.adoc[Next → 02 Platform Architecture]

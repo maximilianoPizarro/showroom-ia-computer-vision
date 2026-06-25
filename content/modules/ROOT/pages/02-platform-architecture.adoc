@@ -1,0 +1,129 @@
+= Platform Architecture
+:_content-type: CONCEPT
+
+++++
+<span class="workshop-time-badge">⏱ ~10 min</span>
+++++
+
+This module explains the hub-spoke topology, the GitOps delivery pipeline, and how every component fits together.
+
+== Hub-spoke topology
+
+The AI Computer Vision pattern uses a *hub-and-spoke* architecture. The hub cluster acts as the fleet control plane — managing cluster lifecycle, secrets, security policy, and developer tooling. Two spoke clusters (`east` and `west`) run edge AI inference workloads close to the data source.
+
+[cols="1,3",options="header"]
+|===
+| Layer | Components
+
+| *Fleet management*
+| RHACM, ManagedCluster, Placement, GitOpsCluster
+
+| *Developer platform*
+| Developer Hub (Backstage), GitLab, Keycloak, DevSpaces, Quay
+
+| *AI / ML*
+| OpenShift AI (DataScienceCluster), KServe, OVMS, YOLO PPE model on MinIO
+
+| *Networking*
+| Gateway API (RHCL), Skupper Service Interconnect, Service Mesh 3 ambient
+
+| *Security*
+| RHACS Central + Secured Clusters, Vault, External Secrets Operator (ESO)
+
+| *Observability*
+| Grafana, Kiali, OpenTelemetry, Cluster Observability Operator
+|===
+
+== GitOps flow
+
+Every resource in this pattern is deployed through *OpenShift GitOps (ArgoCD)*. No manual `oc apply` is needed — everything flows from Git.
+
+The delivery pipeline works like this:
+
+. A developer pushes a change to the `ia-computer-vision` Git repository
+. ArgoCD on each cluster detects the change and syncs the affected `Application`
+. Helm charts in `charts/all/` render Kubernetes manifests (Subscriptions, CRs, ConfigMaps)
+. Operators reconcile their Custom Resources into running workloads
+
+[source,mermaid]
+----
+graph LR
+    A[Git Repository] -->|push| B[ArgoCD Hub]
+    A -->|push| C[ArgoCD East]
+    A -->|push| D[ArgoCD West]
+    B --> E[Operators + CRs on Hub]
+    C --> F[Operators + CRs on East]
+    D --> G[Operators + CRs on West]
+    E --> H[RHACM / Vault / DevHub]
+    F --> I[NeuroFace / YOLO / Mesh]
+    G --> J[NeuroFace / YOLO / Mesh]
+----
+
+== Traffic flow
+
+When a user opens the NeuroFace CV interface, the request flows through several layers:
+
+. *Browser* → `https://neuroface-cv.apps.{hub_domain}`
+. *Gateway API HTTPRoute* on the hub splits traffic 50% east / 50% west
+. *Skupper listeners* on the hub forward to *Skupper connectors* on the selected spoke
+. *KServe InferenceService* `yolo-ppe-serving` in the `neuroface-cv` namespace processes the image
+. *YOLO PPE model* returns bounding boxes for hardhat, safety-vest, goggles
+. Response travels back through Skupper → Gateway → Browser
+
+== Hands-on: explore ArgoCD applications
+
+Log in to the hub cluster and list all ArgoCD-managed applications:
+
+[source,sh,role=execute]
+----
+hub-login user1
+----
+
+[source,sh,role=execute]
+----
+oc get applications.argoproj.io -n openshift-gitops
+----
+
+You should see applications for every component: `acm-hub-spoke`, `developer-hub`, `neuroface-gateway`, `observability`, and more.
+
+Check the sync status of the fleet:
+
+[source,sh,role=execute]
+----
+oc get applications.argoproj.io -n openshift-gitops -o custom-columns=NAME:.metadata.name,STATUS:.status.sync.status,HEALTH:.status.health.status
+----
+
+TIP: All applications should show `Synced` and `Healthy`. If any show `OutOfSync`, ArgoCD will reconcile them automatically within a few minutes.
+
+== Hands-on: explore the pattern repository structure
+
+The Helm charts that define every workload live under `charts/all/`:
+
+[source,sh,role=execute]
+----
+oc get applications.argoproj.io -n openshift-gitops -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.source.path}{"\n"}{end}' | sort
+----
+
+Key chart directories:
+
+[cols="2,3",options="header"]
+|===
+| Chart | Purpose
+
+| `charts/all/acm-hub-spoke/` | ManagedCluster, Placement, GitOpsCluster
+| `charts/all/neuroface-gateway/` | Hub gateway with weighted HTTPRoute
+| `charts/all/spoke-neuroface-cv/` | KServe InferenceService on spokes
+| `charts/all/spoke-interconnect/` | Skupper site, connectors, listeners
+| `charts/all/observability/` | Grafana, OpenTelemetry, dashboards
+| `charts/all/developer-hub/` | Backstage instance + catalog
+| `charts/all/servicemesh-config/` | Service Mesh 3 ambient mode
+|===
+
+== What you learned
+
+* The pattern uses a hub-spoke topology with centralized control and distributed edge inference
+* Every resource is delivered through GitOps — Git is the single source of truth
+* Traffic flows from browser → Gateway API → Skupper → KServe on the target spoke
+* ArgoCD applications map 1:1 to Helm charts in the pattern repository
+
+xref:03-fleet-management-acm.adoc[Next → 03 Fleet Management with ACM]

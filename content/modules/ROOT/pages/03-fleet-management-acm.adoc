@@ -1,0 +1,157 @@
+= Fleet Management with ACM
+:_content-type: PROCEDURE
+
+++++
+<span class="workshop-time-badge">⏱ ~15 min</span>
+++++
+
+Red Hat Advanced Cluster Management for Kubernetes (RHACM) is the fleet control plane. It registers spoke clusters, enforces policies, and delegates GitOps workloads to the right clusters through Placement rules.
+
+== How fleet registration works
+
+The pattern automates spoke registration through the `acm-hub-spoke` Helm chart. Three CRDs wire the fleet:
+
+.Fleet registration CRDs
+[cols="1,3",options="header"]
+|===
+| Resource | Purpose
+
+| `ManagedCluster`
+| Registers a spoke with the hub. Labels like `region: east` determine workload placement.
+
+| `Placement`
+| Selects clusters matching label expressions. Only spokes in the `global` ClusterSet with `region: east\|west` receive workloads.
+
+| `GitOpsCluster`
+| Connects ACM Placement to ArgoCD — spoke clusters appear as ArgoCD targets.
+|===
+
+== Hub vs spoke components
+
+[cols="1,2,2",options="header"]
+|===
+| Capability | Hub | Spoke (east / west)
+
+| Cluster management
+| RHACM hub, Placement, Policies
+| ManagedCluster agent (klusterlet)
+
+| GitOps
+| ArgoCD (openshift-gitops)
+| ArgoCD (openshift-gitops)
+
+| Security
+| RHACS Central, Vault, ESO
+| RHACS Secured Cluster, ESO
+
+| AI inference
+| NeuroFace gateway (routing only)
+| NeuroFace, YOLO PPE, OVMS, KServe
+
+| Networking
+| Gateway API, Skupper listeners
+| Skupper connectors, Service Mesh ambient
+
+| Developer tools
+| Developer Hub, GitLab, Quay, Keycloak
+| DevSpaces
+
+| Observability
+| Grafana (hub dashboards)
+| OpenTelemetry, Grafana, Kiali
+|===
+
+== Hands-on: explore the ACM console
+
+. Open the OCP Console on the hub cluster
+. Navigate to *All Clusters* → *Infrastructure* → *Clusters*
+. Confirm that `east` and `west` appear as *Ready*
+
+Alternatively, verify from the terminal:
+
+[source,sh,role=execute]
+----
+hub-login user1
+----
+
+[source,sh,role=execute]
+----
+oc get managedclusters
+----
+
+Expected output — both spokes should be `True` for `ManagedClusterJoined` and `Available`:
+
+[source,text]
+----
+NAME   HUB ACCEPTED   MANAGED CLUSTER URLS                     JOINED   AVAILABLE   AGE
+east   true           https://api.east.example.com:6443         True     True        4h
+west   true           https://api.west.example.com:6443         True     True        4h
+----
+
+== Hands-on: inspect Placement
+
+Check which clusters are selected for workload distribution:
+
+[source,sh,role=execute]
+----
+oc get placement -n openshift-gitops
+----
+
+[source,sh,role=execute]
+----
+oc get placement hub-spoke-placement -n openshift-gitops -o yaml
+----
+
+The Placement selects clusters in the `global` ClusterSet with `region: east` or `region: west`.
+
+== Hands-on: inspect GitOpsCluster
+
+The `GitOpsCluster` resource connects ACM to ArgoCD so spoke clusters appear as deployment targets:
+
+[source,sh,role=execute]
+----
+oc get gitopscluster -n openshift-gitops
+----
+
+== Hands-on: verify spoke API connectivity
+
+Test that the hub can reach both spokes:
+
+[source,sh,role=execute]
+----
+oc get managedcluster east -o jsonpath='{.status.conditions[?(@.type=="ManagedClusterConditionAvailable")].status}'
+----
+
+[source,sh,role=execute]
+----
+oc get managedcluster west -o jsonpath='{.status.conditions[?(@.type=="ManagedClusterConditionAvailable")].status}'
+----
+
+Both should return `True`.
+
+== Auto-import via GitOps
+
+The spoke registration is fully declarative. The `acm-hub-spoke` chart creates the `ManagedCluster`, `KlusterletAddonConfig`, `Placement`, and `GitOpsCluster` resources. When a new spoke is added to `values-hub.yaml`, ArgoCD syncs the new manifests and ACM automatically imports the cluster.
+
+[source,yaml]
+----
+# values-hub.yaml (simplified)
+managedClusters:
+  east:
+    region: east
+    cloud: auto-detect
+  west:
+    region: west
+    cloud: auto-detect
+----
+
+IMPORTANT: Adding a third spoke is as simple as adding a new entry to `managedClusters` and creating a matching `values-<spoke>.yaml` file.
+
+== What you learned
+
+* RHACM registers spokes as ManagedClusters with label-based Placement
+* GitOpsCluster bridges ACM Placement to ArgoCD for automated deployment
+* The `acm-hub-spoke` chart makes fleet registration fully declarative
+* Both `east` and `west` spokes should show as `Available` in the ACM console
+
+xref:04-developer-hub-templates.adoc[Next → 04 Developer Hub & Templates]

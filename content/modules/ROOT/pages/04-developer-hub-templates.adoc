@@ -1,0 +1,117 @@
+= Developer Hub & Software Templates
+:_content-type: PROCEDURE
+
+++++
+<span class="workshop-time-badge">⏱ ~15 min</span>
+++++
+
+Red Hat Developer Hub (RHDH) gives your developers a self-service portal built on Backstage. In this module you explore the catalog, browse the AI Computer Vision software template, and create a new project.
+
+== What is Developer Hub?
+
+Developer Hub is an internal developer portal that provides:
+
+* *Software catalog* — a searchable inventory of all services, APIs, and resources
+* *Software templates (scaffolder)* — create new projects from golden-path templates with CI/CD pre-wired
+* *TechDocs* — documentation rendered from Markdown/AsciiDoc living alongside code
+* *Plugins* — extensible with Kubernetes, ArgoCD, Tekton, and custom plugins
+
+In this pattern, Developer Hub is deployed on the hub cluster and pre-configured with Keycloak SSO and a GitLab integration.
+
+== Hands-on: open Developer Hub
+
+. Open the OCP Console on the hub cluster
+. Click the application menu (grid icon, top right) → *Red Hat Developer Hub*
+. Or navigate directly:
+
+[source,sh]
+----
+https://developer-hub.apps.{hub_domain}
+----
+
+[start=4]
+. Log in with your workshop credentials (`user1` / `Welcome123!`)
+
+== Hands-on: browse the software catalog
+
+Once logged in:
+
+. Click *Catalog* in the left navigation
+. You should see catalog entities for the AI Computer Vision pattern, including:
+** *NeuroFace* system — the main AI application
+** *neuroface-backend* component — FastAPI backend with PPE detection
+** *neuroface-frontend* component — Angular 17 + PatternFly 5 UI
+** *yolo-ppe-serving* component — KServe InferenceService for YOLO PPE
+
+. Click on the *NeuroFace* system to explore its components, APIs, and dependencies
+
+TIP: The catalog is populated from `catalog-info.yaml` files in GitLab repositories. ArgoCD keeps the Developer Hub configuration in sync with the Git repository.
+
+== Hands-on: explore the AI CV software template
+
+. Click *Create...* in the left navigation
+. Browse the available templates — look for the *AI Computer Vision* template
+. Click on it to see the template parameters:
+** Project name
+** Target namespace
+** Model type (YOLO PPE, OVMS face detection)
+** Spoke cluster target
+
+NOTE: Software templates use the Backstage Scaffolder to generate repositories in GitLab, create namespaces, and register the new service in the catalog — all in one click.
+
+== Hands-on: create a project from template
+
+WARNING: This step creates real resources in your workshop environment. Use your assigned user number in the project name.
+
+. Select the *AI Computer Vision* template
+. Fill in the parameters:
+** *Name*: `my-cv-app-user1` (use your user number)
+** *Owner*: select your user
+. Click *Next* through the review steps
+. Click *Create*
+. Watch the scaffolder log — it will:
+** Create a GitLab repository in your `ws-user1` group
+** Push a pre-configured Helm chart and application code
+** Register the new component in the Backstage catalog
+
+Once complete, click the links to open your new repository in GitLab and view the registered component in the catalog.
+
+== Hands-on: verify in GitLab
+
+Open GitLab and confirm your new project exists:
+
+[source,sh]
+----
+https://gitlab.apps.{hub_domain}
+----
+
+Log in with your workshop credentials. Navigate to the `ws-user1` group and verify the scaffolded repository contains:
+
+* Helm chart files (`Chart.yaml`, `values.yaml`, `templates/`)
+* Application source code
+* `catalog-info.yaml` for Backstage registration
+* CI pipeline configuration
+
+== DevSpaces integration
+
+You can open any GitLab repository directly in Red Hat OpenShift Dev Spaces:
+
+. In Developer Hub, open your component
+. Click *OpenShift Dev Spaces* link (if the plugin is configured)
+. Or open DevSpaces directly:
+
+[source,sh]
+----
+https://devspaces.apps.{hub_domain}
+----
+
+DevSpaces provisions a cloud-based IDE workspace with all dependencies pre-installed.
+
+== What you learned
+
+* Developer Hub provides a self-service portal for developers with catalog, templates, and documentation
+* The AI Computer Vision software template scaffolds a complete project with CI/CD and catalog registration
+* GitLab integration stores code and `catalog-info.yaml` for automatic catalog discovery
+* DevSpaces lets you develop directly in a cloud IDE without local setup
+
+xref:05-neuroface-cv-inference.adoc[Next → 05 NeuroFace CV Inference ★]

@@ -1,0 +1,194 @@
+= Observability & Service Mesh
+:_content-type: PROCEDURE
+
+++++
+<span class="workshop-time-badge">⏱ ~15 min</span>
+++++
+
+This module covers the observability stack and Service Mesh 3 ambient mode. You will explore Grafana dashboards, Kiali service graphs, and OpenTelemetry collectors that give you visibility into the NeuroFace inference pipeline across all clusters.
+
+== Service Mesh 3 — ambient mode
+
+The pattern deploys *Red Hat OpenShift Service Mesh 3* in *ambient mode* on spoke clusters. Ambient mode provides mTLS encryption and L4 telemetry *without injecting sidecar proxies* into your pods:
+
+[cols="1,3",options="header"]
+|===
+| Feature | How it works in ambient mode
+
+| *mTLS*
+| The ztunnel (zero-trust tunnel) DaemonSet encrypts all pod-to-pod traffic automatically
+
+| *L4 telemetry*
+| Connection-level metrics (bytes, connections, errors) without any application changes
+
+| *No sidecars*
+| Pods run with their original resource footprint — no sidecar overhead
+
+| *Namespace opt-in*
+| Add `istio.io/dataplane-mode: ambient` label to enable mesh for a namespace
+|===
+
+The `neuroface-cv` namespace on each spoke has ambient mode enabled:
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neuroface-cv
+  labels:
+    istio.io/dataplane-mode: ambient
+----
+
+== Hands-on: check Service Mesh components
+
+[source,sh,role=execute]
+----
+east-login user1
+----
+
+Verify the Istio control plane:
+
+[source,sh,role=execute]
+----
+oc get pods -n istio-system
+----
+
+Check the ztunnel DaemonSet (ambient mode data plane):
+
+[source,sh,role=execute]
+----
+oc get pods -n ztunnel
+----
+
+Verify ambient mode is active for the NeuroFace CV namespace:
+
+[source,sh,role=execute]
+----
+oc get namespace neuroface-cv -o jsonpath='{.metadata.labels.istio\.io/dataplane-mode}'
+----
+
+Expected output: `ambient`
+
+== OpenTelemetry collectors
+
+The pattern deploys *OpenTelemetry collectors* on each cluster to gather traces, metrics, and logs:
+
+[cols="1,2",options="header"]
+|===
+| Component | Namespace
+
+| OpenTelemetry Collector
+| `openshift-opentelemetry`
+
+| Cluster Observability Operator
+| `openshift-cluster-observability-operator`
+|===
+
+Check the collector pods:
+
+[source,sh,role=execute]
+----
+oc get pods -n openshift-opentelemetry
+----
+
+== Grafana dashboards
+
+Grafana is deployed on spoke clusters with pre-configured dashboards for monitoring NeuroFace and platform health.
+
+Open Grafana:
+
+[source,sh]
+----
+https://grafana.apps.{east_domain}
+----
+
+Log in with your workshop credentials.
+
+=== Key dashboards
+
+[cols="1,3",options="header"]
+|===
+| Dashboard | What it shows
+
+| *neuroface-cv*
+| Gateway requests/sec, east vs west traffic split, inference latency, model health
+
+| *istio-mesh*
+| Service Mesh ambient mode metrics — connection counts, mTLS status, error rates
+
+| *cluster-health*
+| Node CPU/memory, pod counts, etcd health across the cluster
+|===
+
+== Hands-on: explore the NeuroFace dashboard
+
+. Open Grafana on the east spoke
+. Navigate to *Dashboards* → search for `neuroface`
+. Open the *neuroface-cv* dashboard
+. Observe:
+** Request rate to the YOLO inference endpoint
+** Latency percentiles (p50, p95, p99)
+** East vs west traffic distribution (if federated metrics are configured)
+** Model serving pod health
+
+TIP: Generate some traffic by uploading images in the NeuroFace UI while watching the dashboard. You should see the request rate increase in real time.
+
+== Kiali service graph
+
+Kiali provides a visual graph of service-to-service communication within the mesh:
+
+[source,sh]
+----
+https://kiali.apps.{east_domain}
+----
+
+. Log in with your workshop credentials
+. Select the `neuroface-cv` namespace
+. View the service graph to see traffic flowing between:
+** Gateway → YOLO PPE serving
+** Backend → OVMS
+** Backend → external services (MinIO, LLM)
+
+== Hands-on: check Kiali from the terminal
+
+[source,sh,role=execute]
+----
+east-login user1
+----
+
+Verify Kiali is running:
+
+[source,sh,role=execute]
+----
+oc get pods -n istio-system -l app.kubernetes.io/name=kiali
+----
+
+== Hands-on: verify observability on the hub
+
+Check that the hub observability components are running:
+
+[source,sh,role=execute]
+----
+hub-login user1
+----
+
+[source,sh,role=execute]
+----
+oc get pods -n openshift-opentelemetry
+----
+
+[source,sh,role=execute]
+----
+oc get pods -n openshift-cluster-observability-operator
+----
+
+== What you learned
+
+* Service Mesh 3 ambient mode provides mTLS and L4 telemetry without sidecars
+* OpenTelemetry collectors gather traces, metrics, and logs across all clusters
+* Grafana dashboards show real-time NeuroFace inference metrics and traffic distribution
+* Kiali visualizes service-to-service communication within the mesh
+* The entire observability stack is deployed and managed through GitOps
+
+xref:10-whats-next.adoc[Next → 10 What's Next]
