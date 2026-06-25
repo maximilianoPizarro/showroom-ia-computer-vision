@@ -117,7 +117,7 @@ curl -sk -H "Authorization: Bearer $API_KEY" \
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
-  https://neuroface.apps.%HUB_DOMAIN%/
+  https://neuroface.%HUB_DOMAIN%/
 ----
 
 .Expected output

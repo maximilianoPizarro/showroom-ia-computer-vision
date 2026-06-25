@@ -16,7 +16,7 @@ This is the core workshop activity. You scaffold a personal NeuroFace instance f
 
 [source,sh]
 ----
-https://developer-hub.apps.%HUB_DOMAIN%
+https://developer-hub.%HUB_DOMAIN%
 ----
 
 [start=4]
@@ -135,7 +135,7 @@ neuroface-frontend-xxx            true    Running
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "NeuroFace spoke east: HTTP %{http_code}\n" \
-  https://neuroface.apps.%HUB_DOMAIN%/
+  https://neuroface.%HUB_DOMAIN%/
 ----
 
 .Expected output
@@ -146,7 +146,7 @@ NeuroFace spoke east: HTTP 200
 
 == Test PPE detection in the UI
 
-. Open `https://neuroface.apps.%HUB_DOMAIN%`
+. Open `https://neuroface.%HUB_DOMAIN%`
 . Upload a photo and observe PPE bounding boxes
 . Try the chat panel (MaaS Llama model)
 
@@ -165,7 +165,7 @@ Continue with xref:03-openshift-ai.adoc[Module 03 — OpenShift AI step-by-step]
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
-  https://neuroface.apps.%HUB_DOMAIN%/
+  https://neuroface.%HUB_DOMAIN%/
 ----
 
 .Expected output

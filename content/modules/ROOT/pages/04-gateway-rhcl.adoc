@@ -73,7 +73,7 @@ spec:
 ----
 for i in $(seq 1 10); do
   curl -sk -o /dev/null -w "Request $i: HTTP %{http_code}\n" \
-    https://neuroface.apps.%HUB_DOMAIN%/
+    https://neuroface.%HUB_DOMAIN%/
 done
 neuroface-cv-traffic
 ----
@@ -93,7 +93,7 @@ TIP: If you get HTTP 503, the spoke NeuroFace pods may not be running yet. Verif
 
 [source,sh,role=execute]
 ----
-curl -sk -D- https://neuroface.apps.%HUB_DOMAIN%/ 2>/dev/null | head -15
+curl -sk -D- https://neuroface.%HUB_DOMAIN%/ 2>/dev/null | head -15
 ----
 
 .Expected output
@@ -142,7 +142,7 @@ Continue with xref:05-maas-api-key.adoc[Module 05 — MaaS API key and curl infe
 
 [source,sh,role=execute]
 ----
-curl -sk -D- https://neuroface.apps.%HUB_DOMAIN%/ 2>/dev/null | head -10
+curl -sk -D- https://neuroface.%HUB_DOMAIN%/ 2>/dev/null | head -10
 ----
 
 === View all Gateway API objects

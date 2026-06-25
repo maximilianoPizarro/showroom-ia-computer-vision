@@ -39,7 +39,7 @@ for svc in \
   "vault-vault" \
   "vp-gitops-server-vp-gitops" \
   "showroom-showroom"; do
-  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.apps.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
+  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
   printf "%-45s %s\n" "$svc" "$CODE"
 done
 ----
@@ -146,7 +146,7 @@ for svc in \n
   "vp-gitops-server-vp-gitops" \n
   "showroom-showroom"; do
 
-  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.apps.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
+  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
 
   printf "%-50s %s
 " "$svc" "$CODE"

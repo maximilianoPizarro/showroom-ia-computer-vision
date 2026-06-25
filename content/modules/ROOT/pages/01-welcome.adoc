@@ -33,22 +33,22 @@ The Validated Pattern installs **1 hub + 2 spokes** (east and west) with GitOps-
 | Component | URL
 
 | OCP Console (hub)
-| `https://console-openshift-console.apps.%HUB_DOMAIN%`
+| `https://console-openshift-console.%HUB_DOMAIN%`
 
 | Developer Hub
-| `https://developer-hub.apps.%HUB_DOMAIN%`
+| `https://developer-hub.%HUB_DOMAIN%`
 
 | GitLab
-| `https://gitlab.apps.%HUB_DOMAIN%`
+| `https://gitlab.%HUB_DOMAIN%`
 
 | OpenShift AI dashboard
-| `https://rhods-dashboard-redhat-ods-applications.apps.%HUB_DOMAIN%`
+| `https://rhods-dashboard-redhat-ods-applications.%HUB_DOMAIN%`
 
 | NeuroFace (RHCL gateway)
-| `https://neuroface.apps.%HUB_DOMAIN%`
+| `https://neuroface.%HUB_DOMAIN%`
 
 | Showroom (this guide)
-| `https://showroom.apps.%HUB_DOMAIN%`
+| `https://showroom.%HUB_DOMAIN%`
 |===
 
 == Log in with your workshop user
@@ -89,9 +89,9 @@ platform-users               Synced      Healthy
 
 [source,sh,role=execute]
 ----
-curl -sk -o /dev/null -w "Hub Console: HTTP %{http_code}\n" https://console-openshift-console.apps.%HUB_DOMAIN%/
-curl -sk -o /dev/null -w "ArgoCD:      HTTP %{http_code}\n" https://vp-gitops-server-vp-gitops.apps.%HUB_DOMAIN%/
-curl -sk -o /dev/null -w "Vault:       HTTP %{http_code}\n" https://vault-vault.apps.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Hub Console: HTTP %{http_code}\n" https://console-openshift-console.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "ArgoCD:      HTTP %{http_code}\n" https://vp-gitops-server-vp-gitops.%HUB_DOMAIN%/
+curl -sk -o /dev/null -w "Vault:       HTTP %{http_code}\n" https://vault-vault.%HUB_DOMAIN%/
 ----
 
 .Expected output
@@ -161,17 +161,17 @@ developer-hub                Synced      Healthy
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "Console:       HTTP %{http_code}
-" https://console-openshift-console.apps.%HUB_DOMAIN%/
+" https://console-openshift-console.%HUB_DOMAIN%/
 curl -sk -o /dev/null -w "ArgoCD:        HTTP %{http_code}
-" https://vp-gitops-server-vp-gitops.apps.%HUB_DOMAIN%/
+" https://vp-gitops-server-vp-gitops.%HUB_DOMAIN%/
 curl -sk -o /dev/null -w "Vault:         HTTP %{http_code}
-" https://vault-vault.apps.%HUB_DOMAIN%/
+" https://vault-vault.%HUB_DOMAIN%/
 curl -sk -o /dev/null -w "Developer Hub: HTTP %{http_code}
-" https://developer-hub.apps.%HUB_DOMAIN%/
+" https://developer-hub.%HUB_DOMAIN%/
 curl -sk -o /dev/null -w "GitLab:        HTTP %{http_code}
-" https://gitlab.apps.%HUB_DOMAIN%/
+" https://gitlab.%HUB_DOMAIN%/
 curl -sk -o /dev/null -w "Showroom:      HTTP %{http_code}
-" https://showroom-showroom.apps.%HUB_DOMAIN%/
+" https://showroom-showroom.%HUB_DOMAIN%/
 ----
 
 == What you learned
