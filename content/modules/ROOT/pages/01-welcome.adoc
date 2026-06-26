@@ -6,7 +6,7 @@
 <span class="workshop-time-badge">⏱ ~5 min</span>
 ++++
 
-Welcome to the **AI Computer Vision at the Edge** workshop. In the next hour you deploy a personal NeuroFace instance, explore OpenShift AI, discover RHCL Gateway objects, and test inference with curl.
+Welcome to the **AI Computer Vision at the Edge** workshop. In ~70 minutes you deploy a personal NeuroFace instance, explore OpenShift AI, discover RHCL Gateway objects, and test inference with curl.
 
 == What this pattern deploys
 

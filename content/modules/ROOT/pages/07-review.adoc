@@ -6,7 +6,7 @@
 <span class="workshop-time-badge">⏱ ~10 min</span>
 ++++
 
-Congratulations — you completed the 1-hour AI Computer Vision journey.
+Congratulations — you completed the AI Computer Vision workshop.
 
 == What you deployed
 
@@ -124,64 +124,6 @@ spec:
 * https://maximilianoPizarro.github.io/ia-computer-vision/
 * https://validatedpatterns.io/
 * https://ux.redhat.com/
-
-== Verify all console link services
-
-[source,sh,role=execute]
-
-----
-
-hub-login %USER_NAME%
-
-echo "=== Console Links Health Check ==="
-
-for svc in \n
-  "console-openshift-console" \n
-  "developer-hub" \n
-  "gitlab" \n
-  "rhods-dashboard-redhat-ods-applications" \n
-  "grafana" \n
-  "kiali-openshift-cluster-observability-operator" \n
-  "vault-vault" \n
-  "vp-gitops-server-vp-gitops" \n
-  "showroom-showroom"; do
-
-  CODE=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 5 "https://${svc}.%HUB_DOMAIN%/" 2>/dev/null || echo "ERR")
-
-  printf "%-50s %s
-" "$svc" "$CODE"
-
-done
-
-----
-
-
-
-.Expected: all services return 200, 302 (redirect to login), or 307 (redirect to UI)
-
-[source,text]
-
-----
-
-console-openshift-console                          200
-
-developer-hub                                      200
-
-gitlab                                             302
-
-rhods-dashboard-redhat-ods-applications             302
-
-grafana                                            200
-
-kiali-openshift-cluster-observability-operator      200
-
-vault-vault                                        307
-
-vp-gitops-server-vp-gitops                         200
-
-showroom-showroom                                  200
-
-----
 
 == Helper commands
 

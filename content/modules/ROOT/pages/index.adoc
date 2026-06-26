@@ -1,21 +1,23 @@
 = {lab_name}
 :_content-type: ASSEMBLY
 
-Welcome to the **AI Computer Vision at the Edge** workshop — a focused 1-hour journey through multi-cluster AI inference.
+Welcome to the **AI Computer Vision** Validated Pattern workshop.
 
-In 60 minutes you deploy a personal NeuroFace instance from Developer Hub, explore OpenShift AI MaaS connections, discover RHCL Gateway objects, and test inference with curl.
+This lab guide walks you through a multi-cluster deployment that combines Red Hat OpenShift Container Platform (OCP), Red Hat OpenShift AI (RHOAI), Red Hat Developer Hub (RHDH), and edge inference with NeuroFace computer vision workloads.
 
-== What you will do
+== What you will explore
 
-* Deploy NeuroFace from the *AI Computer Vision at the Edge* Developer Hub template
-* Explore OpenShift AI `maas-workshop` model connections
-* Inspect Gateway API, HTTPRoute, and Skupper ExternalName Services
-* Obtain a MaaS API key and test chat completion with curl
-* Review GitOps configuration you can replicate in future patterns
+* Hub-spoke fleet management with Red Hat Advanced Cluster Management (RHACM)
+* AI inference at the edge with OpenVINO Model Server (OVMS) and YOLO
+* Cross-cluster connectivity with Skupper and Red Hat Connectivity Link (RHCL)
+* Observability with Grafana, Kiali, and OpenTelemetry
+* Developer self-service with Developer Hub, GitLab, and OpenShift DevSpaces
 
 == Workshop access
 
 Use your assigned workshop user (`user1` through `user30`) with password `Welcome123!` to log in to:
+
+WARNING: These credentials are for this ephemeral sandbox environment only. Do not reuse workshop passwords in production. Sandbox clusters are automatically destroyed after the session.
 
 * OCP Console (HTPasswd identity provider `workshop-users`)
 * Red Hat Developer Hub (Keycloak realm `backstage`)
@@ -25,7 +27,7 @@ Use your assigned workshop user (`user1` through `user30`) with password `Welcom
 
 The embedded terminal on the right supports helper commands:
 
-[source,sh,role=execute]
+[source,sh]
 ----
 hub-login user1
 east-login user1
@@ -35,23 +37,6 @@ neuroface-cv-traffic
 neuroface-spoke-status
 ----
 
-TIP: Replace `user1` with your assigned user number.
+== Next steps
 
-== Workshop modules (70 minutes)
-
-[cols="1,3,1",options="header"]
-|===
-| # | Module | Time
-
-| 01 | xref:01-welcome.adoc[Welcome and orientation] | 5 min
-| 02 | xref:02-deploy-neuroface.adoc[Deploy NeuroFace from Developer Hub ★] | 15 min
-| 03 | xref:03-openshift-ai.adoc[OpenShift AI step-by-step] | 10 min
-| 04 | xref:04-gateway-rhcl.adoc[Discover RHCL Gateway objects] | 10 min
-| 05 | xref:05-maas-api-key.adoc[MaaS API key and curl inference] | 10 min
-| 06 | xref:06-vault-secrets.adoc[Vault and secrets management] | 10 min
-| 07 | xref:07-review.adoc[Review and next steps] | 10 min
-|===
-
-== Get started
-
-Continue with xref:01-welcome.adoc[Module 01 — Welcome and orientation].
+Continue with xref:getting-started.adoc[Getting started] or review the xref:architecture.adoc[Architecture overview].
