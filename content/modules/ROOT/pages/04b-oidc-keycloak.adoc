@@ -1,0 +1,106 @@
+= OIDC lab with Keycloak and curl
+:_content-type: PROCEDURE
+// estimated time: 20 min
+
+++++
+<span class="workshop-time-badge">⏱ ~20 min</span>
+++++
+
+Use Keycloak (RHBK) realm `cv` to obtain a JWT and call the NeuroFace CV gateway protected by Red Hat Connectivity Link (RHCL) OIDCPolicy.
+
+== Register for the workshop
+
+If you have not already, open the registration portal and enter your email:
+
+[source,text]
+----
+https://workshop-registration.%HUB_DOMAIN%/
+----
+
+You receive a workshop user (`userN`) and redirect to this lab guide with `?USER_NAME=userN`.
+
+== Step 1 — Log in to Keycloak
+
+. Open `https://sso.%HUB_DOMAIN%/`
+. Sign in as `%USER_NAME%` / `Welcome123!`
+. Switch to realm *cv* (top-left realm selector)
+
+== Step 2 — Create your own OIDC client (optional)
+
+Workshop users can create clients in realm `cv` (roles `view-clients`, `manage-clients` on `realm-management`).
+
+. In realm *cv*, go to *Clients* → *Create client*
+. Client ID: `my-cv-client-%USER_NAME%`
+. Client authentication: *On* (confidential)
+. Valid redirect URI: `https://developer-hub.%HUB_DOMAIN%/*`
+. Save → *Credentials* tab → copy the *Client secret*
+
+[TIP]
+====
+A pre-provisioned client `client-cv-%USER_NAME%` already exists. Its secret is synced from Vault via External Secrets Operator into namespace `keycloak-system` as Secret `keycloak-client-cv-%USER_NAME%`.
+====
+
+== Step 3 — Get a token with curl (client_credentials)
+
+Replace `MY_CLIENT` and `MY_SECRET` with your client ID and secret (or the pre-provisioned client).
+
+[source,sh,role=execute]
+----
+export CLIENT_ID="client-cv-%USER_NAME%"
+export CLIENT_SECRET=$(oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system \
+  -o jsonpath='{.data.clientSecret}' 2>/dev/null | base64 -d)
+TOKEN=$(curl -sk -X POST "https://sso.%HUB_DOMAIN%/realms/cv/protocol/openid-connect/token" \
+  -d "grant_type=client_credentials&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+echo "Token length: ${#TOKEN}"
+----
+
+== Step 4 — Call the CV API with Bearer token
+
+[source,sh,role=execute]
+----
+curl -sk -H "Authorization: Bearer $TOKEN" \
+  "https://neuroface-cv.%HUB_DOMAIN%/api/health" | python3 -m json.tool
+----
+
+.Expected output (example)
+[source,json]
+----
+{
+  "status": "ok",
+  "cluster": "east"
+}
+----
+
+== Step 5 — Try Swagger UI in Developer Hub
+
+. Open `https://developer-hub.%HUB_DOMAIN%/`
+. *Catalog* → System *IAM / OIDC Realms* → API *Computer Vision OpenAPI*
+. *Definition* tab → *Try it out* on `/api/health`
+. Authorize with Bearer token from Step 3
+
+== Step 6 — MaaS with APIKEY (contrast with OIDC)
+
+OIDC protects route `ai-maas`. The public AI Gateway route uses Kuadrant *APIKEY* auth instead.
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+# Request API key in Developer Hub → Catalog → workshop-kuadrant-apis → workshop-maas-openapi → Kuadrant tab
+curl -sk -H "Authorization: APIKEY <your-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"llama-scout-17b","messages":[{"role":"user","content":"Hello"}]}' \
+  "https://ai-gateway.%HUB_DOMAIN%/v1/chat/completions" | head -c 400
+echo
+----
+
+== What you learned
+
+* RHBK realms (`cv`, `neuroface`, `maas`) issue JWTs for RHCL OIDCPolicy
+* `client_credentials` grant works for machine-to-machine API access
+* Developer Hub IAM catalog exposes OpenAPI specs with Swagger *Try it out*
+* MaaS supports both OIDC (route `ai-maas`) and APIKEY (route `ai-gateway`)
+
+== Next
+
+Continue with xref:05-maas-api-key.adoc[Module 05 — MaaS API key and curl inference].

@@ -3,6 +3,8 @@
 * xref:02-deploy-neuroface.adoc[Deploy NeuroFace]
 * xref:03-openshift-ai.adoc[OpenShift AI]
 * xref:04-gateway-rhcl.adoc[Gateway & Connectivity Link]
+* xref:04b-oidc-keycloak.adoc[OIDC & Keycloak Lab]
 * xref:05-maas-api-key.adoc[MaaS API Key]
 * xref:06-vault-secrets.adoc[Vault & Secrets]
 * xref:07-review.adoc[Review]
+* xref:08-crd-reference.adoc[CRD Reference]

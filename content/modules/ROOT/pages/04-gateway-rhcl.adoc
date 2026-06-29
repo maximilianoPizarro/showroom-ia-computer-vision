@@ -176,3 +176,7 @@ neuroface-app-west    ExternalName   neuroface-app-west.service-interconnect.svc
 ----
 
 NOTE: The Gateway shows `PROGRAMMED: True` only when the Istio control plane is running in `istio-system`. If it shows `Unknown`, check that `servicemesh-config` ArgoCD app is Healthy.
+
+== Next
+
+Continue with xref:04b-oidc-keycloak.adoc[Module 04b — OIDC lab with Keycloak and curl].
