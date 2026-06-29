@@ -19,11 +19,17 @@ https://workshop-registration.%HUB_DOMAIN%/
 
 You receive a workshop user (`userN`) and redirect to this lab guide with `?USER_NAME=userN`.
 
-== Step 1 — Log in to Keycloak
+== Step 1 — Log in to Keycloak (realm cv)
 
-. Open `https://sso.%HUB_DOMAIN%/`
+Workshop users exist in realm *cv*, not in the *master* admin console. Do **not** sign in at the admin console root (`https://sso.%HUB_DOMAIN%/` redirects there).
+
+. Open the *cv* account console: `https://sso.%HUB_DOMAIN%/realms/cv/account/`
 . Sign in as `%USER_NAME%` / `Welcome123!`
-. Switch to realm *cv* (top-left realm selector)
+
+[TIP]
+====
+For API access you can skip the UI and go directly to *Step 3* with `client_credentials`.
+====
 
 == Step 2 — Create your own OIDC client (optional)
 
