@@ -91,7 +91,7 @@
 
   function registrationUrl(hubDomain) {
     var m = metaContent('workshop-registration-url');
-    if (m && !isPlaceholder(m)) {
+    if (m && !isPlaceholder(m) && m.indexOf('workshop-registration') !== -1) {
       return m.replace(/\/$/, '');
     }
     return hubDomain ? 'https://workshop-registration.' + hubDomain : '';
@@ -560,7 +560,10 @@
 
     if (hubDomain) {
       var regMeta = document.querySelector('meta[name="workshop-registration-url"]');
-      if (regMeta && isPlaceholder(regMeta.content)) {
+      if (
+        regMeta &&
+        (isPlaceholder(regMeta.content) || regMeta.content.indexOf('workshop-registration') === -1)
+      ) {
         regMeta.content = 'https://workshop-registration.' + hubDomain;
       }
       var hubMeta = document.querySelector('meta[name="workshop-hub-domain"]');
