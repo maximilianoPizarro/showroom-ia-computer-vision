@@ -135,3 +135,30 @@ neuroface-spoke-status
 ----
 
 Thank you for completing the workshop!
+
+== OIDC Integration
+
+The pattern integrates Red Hat Build of Keycloak (RHBK) for OIDC authentication:
+
+* **SSO URL**: `https://sso.apps.<hub_domain>` (not `keycloak.apps`)
+* **Backstage realm**: Used by Developer Hub, DevSpaces
+* **neuroface, maas, cv realms**: Provisioned by the `rhbk-iam` chart for API protection
+* **Login**: Workshop users authenticate with `userN` / `Welcome123!`
+
+The main demo route (`neuroface.apps.<hub>`) runs **without OIDC** to allow the frontend to display EAST/WEST cluster badges. The Computer Vision API route (`neuroface-cv.apps.<hub>`) is protected by the `cv` realm OIDCPolicy.
+
+== Skupper Multi-Cluster Connectivity
+
+Traffic flows from the hub to spoke clusters via Skupper service interconnect:
+
+. Hub creates an `AccessGrant` (chart: `hub-interconnect`)
+. A CronJob pushes `AccessToken` to each spoke via ACM `ManagedClusterAction`
+. Each spoke creates a `Site` + `Connector` pointing to its local spoke gateway
+. Hub `Listeners` create services that route to spoke connectors
+. `HTTPRoute` with 50/50 weight distributes requests between east and west
+
+The cluster badge in the NeuroFace UI header shows which spoke is serving:
+
+* **EAST** (green badge)
+* **WEST** (yellow badge)
+* **HUB** (blue badge — fallback when API is unreachable)
