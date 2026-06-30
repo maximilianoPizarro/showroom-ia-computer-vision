@@ -21,21 +21,41 @@ You receive a workshop user (`userN`) and redirect to this lab guide with `?USER
 
 == Step 1 — Log in to Keycloak (realm cv)
 
-Workshop users exist in realm *cv*, not in the *master* admin console. Do **not** sign in at the admin console root (`https://sso.%HUB_DOMAIN%/` redirects there).
+Keycloak exposes two consoles.  Use the one that matches what you need:
 
-. Open the *cv* account console: `https://keycloak.%HUB_DOMAIN%/realms/cv/account/`
+[cols="1,2,2",options="header"]
+|===
+| Console | URL | Use case
+
+| *Admin Console* (realm cv)
+| `https://keycloak.%HUB_DOMAIN%/admin/cv/console/`
+| Create / manage OIDC clients, view users and roles
+
+| *Account Console*
+| `https://keycloak.%HUB_DOMAIN%/realms/cv/account/`
+| View your profile, sessions, and authorized applications
+|===
+
+. Open the *Admin Console* for realm cv: `https://keycloak.%HUB_DOMAIN%/admin/cv/console/`
 . Sign in as `%USER_NAME%` / `Welcome123!`
+. You should see the *Clients* section in the left sidebar
+
+[WARNING]
+====
+Do **not** use `https://sso.%HUB_DOMAIN%/` — that alias redirects to the *master* admin console where workshop users do not exist.
+Always use `https://keycloak.%HUB_DOMAIN%/` for both admin and account consoles.
+====
 
 [TIP]
 ====
-For API access you can skip the UI and go directly to *Step 3* with `client_credentials`.
+For API access only (no UI needed), skip to <<step-3,Step 3>> and use `client_credentials` with curl.
 ====
 
 == Step 2 — Create your own OIDC client (optional)
 
-Workshop users can create clients in realm `cv` (roles `view-clients`, `manage-clients` on `realm-management`).
+Workshop users have roles `view-clients` and `manage-clients` on the `realm-management` client, so you can create your own clients in realm `cv`.
 
-. In realm *cv*, go to *Clients* → *Create client*
+. In the Admin Console (realm *cv*), go to *Clients* → *Create client*
 . Client ID: `my-cv-client-%USER_NAME%`
 . Client authentication: *On* (confidential)
 . Valid redirect URI: `https://developer-hub.%HUB_DOMAIN%/*`
@@ -43,23 +63,32 @@ Workshop users can create clients in realm `cv` (roles `view-clients`, `manage-c
 
 [TIP]
 ====
-A pre-provisioned client `client-cv-%USER_NAME%` already exists. Its secret is synced from Vault via External Secrets Operator into namespace `keycloak-system` as Secret `keycloak-client-cv-%USER_NAME%`.
+A pre-provisioned client `client-cv-%USER_NAME%` already exists.
+Its secret is synced from Vault via External Secrets Operator into namespace `keycloak-system` as Secret `keycloak-client-cv-%USER_NAME%`.
+You can use it directly in Step 3 without creating anything.
 ====
 
+[#step-3]
 == Step 3 — Get a token with curl (client_credentials)
 
-Replace `MY_CLIENT` and `MY_SECRET` with your client ID and secret (or the pre-provisioned client).
+Use the pre-provisioned client or your own from Step 2.
 
 [source,sh,role=execute]
 ----
 export CLIENT_ID="client-cv-%USER_NAME%"
 export CLIENT_SECRET=$(oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system \
   -o jsonpath='{.data.clientSecret}' 2>/dev/null | base64 -d)
-TOKEN=$(curl -sk -X POST "https://sso.%HUB_DOMAIN%/realms/cv/protocol/openid-connect/token" \
+TOKEN=$(curl -sk -X POST "https://keycloak.%HUB_DOMAIN%/realms/cv/protocol/openid-connect/token" \
   -d "grant_type=client_credentials&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" \
   | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
 echo "Token length: ${#TOKEN}"
 ----
+
+[NOTE]
+====
+If `Token length: 0`, verify the secret exists: `oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system`.
+The secret is provisioned by the External Secrets Operator from Vault path `secret/hub/keycloak/realms/cv/%USER_NAME%`.
+====
 
 == Step 4 — Call the CV API with Bearer token
 
@@ -81,6 +110,7 @@ curl -sk -H "Authorization: Bearer $TOKEN" \
 == Step 5 — Try Swagger UI in Developer Hub
 
 . Open `https://developer-hub.%HUB_DOMAIN%/`
+. Log in with `%USER_NAME%` / `Welcome123!` (Keycloak realm *backstage*)
 . *Catalog* → System *IAM / OIDC Realms* → API *Computer Vision OpenAPI*
 . *Definition* tab → *Try it out* on `/api/health`
 . Authorize with Bearer token from Step 3
@@ -104,6 +134,7 @@ echo
 
 * RHBK realms (`cv`, `neuroface`, `maas`) issue JWTs for RHCL OIDCPolicy
 * `client_credentials` grant works for machine-to-machine API access
+* Workshop users can self-service create OIDC clients via the Admin Console
 * Developer Hub IAM catalog exposes OpenAPI specs with Swagger *Try it out*
 * MaaS supports both OIDC (route `ai-maas`) and APIKEY (route `ai-gateway`)
 
