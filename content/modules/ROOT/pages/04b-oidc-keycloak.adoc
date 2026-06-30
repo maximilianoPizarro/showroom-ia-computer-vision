@@ -23,7 +23,7 @@ You receive a workshop user (`userN`) and redirect to this lab guide with `?USER
 
 Workshop users exist in realm *cv*, not in the *master* admin console. Do **not** sign in at the admin console root (`https://sso.%HUB_DOMAIN%/` redirects there).
 
-. Open the *cv* account console: `https://sso.%HUB_DOMAIN%/realms/cv/account/`
+. Open the *cv* account console: `https://keycloak.%HUB_DOMAIN%/realms/cv/account/`
 . Sign in as `%USER_NAME%` / `Welcome123!`
 
 [TIP]
