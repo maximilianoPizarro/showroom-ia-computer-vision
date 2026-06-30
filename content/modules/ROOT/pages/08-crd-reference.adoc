@@ -114,6 +114,156 @@ This module summarizes Kubernetes custom resources (CRs) used in the *AI Compute
 </div>
 ++++
 
+== Architecture map
+
+++++
+<div class="workshop-crd-graph" style="margin:1.5rem 0;background:var(--pf-v5-global--BackgroundColor--200,#f0f0f0);border:1px solid var(--pf-v5-global--BorderColor--100,#d2d2d2);border-radius:var(--pf-v5-global--BorderRadius--sm,3px);padding:1rem;overflow-x:auto;">
+<svg viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:960px;height:auto;font-family:'Red Hat Text','RedHatText',Helvetica,Arial,sans-serif;font-size:12px;">
+  <defs>
+    <marker id="arch-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0066cc"/></marker>
+    <marker id="arch-arrow-dash" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#6a6e73"/></marker>
+  </defs>
+
+  <!-- Hub Cluster -->
+  <rect x="20" y="20" width="440" height="450" rx="8" fill="none" stroke="#6a6e73" stroke-dasharray="4,2"/>
+  <text x="35" y="45" font-weight="700" fill="#151515" font-size="14">Hub Cluster</text>
+
+  <rect x="40" y="70" width="180" height="60" rx="6" fill="#f5f0ff" stroke="#6753ac"/>
+  <text x="50" y="90" font-weight="700" fill="#6753ac">Developer Hub</text>
+  <text x="50" y="110" fill="#151515" font-size="11">Catalog, Scaffolder, LS</text>
+
+  <rect x="240" y="70" width="180" height="60" rx="6" fill="#fdf7e7" stroke="#f0ab00"/>
+  <text x="250" y="90" font-weight="700" fill="#795600">RHBK (Keycloak)</text>
+  <text x="250" y="110" fill="#151515" font-size="11">OIDC Identity Provider</text>
+
+  <rect x="40" y="150" width="180" height="60" rx="6" fill="#e7f1fa" stroke="#0066cc"/>
+  <text x="50" y="170" font-weight="700" fill="#0066cc">Gateway API + RHCL</text>
+  <text x="50" y="190" fill="#151515" font-size="11">Routing &amp; Kuadrant Auth</text>
+
+  <rect x="240" y="150" width="180" height="60" rx="6" fill="#f2fde8" stroke="#3e8635"/>
+  <text x="250" y="170" font-weight="700" fill="#3e8635">HashiCorp Vault / ESO</text>
+  <text x="250" y="190" fill="#151515" font-size="11">Secrets Management</text>
+
+  <rect x="40" y="230" width="180" height="60" rx="6" fill="#fff3e8" stroke="#e25100"/>
+  <text x="50" y="250" font-weight="700" fill="#e25100">GitLab</text>
+  <text x="50" y="270" fill="#151515" font-size="11">Source Code / Configs</text>
+
+  <rect x="240" y="230" width="180" height="60" rx="6" fill="#fdf7e7" stroke="#f0ab00"/>
+  <text x="250" y="250" font-weight="700" fill="#795600">OpenShift GitOps</text>
+  <text x="250" y="270" fill="#151515" font-size="11">Argo CD ApplicationSets</text>
+
+  <rect x="40" y="310" width="380" height="60" rx="6" fill="#f5f0ff" stroke="#8a8d90"/>
+  <text x="50" y="330" font-weight="700" fill="#151515">Red Hat OpenShift AI (Hub)</text>
+  <text x="50" y="350" fill="#151515" font-size="11">AI Gateway / MaaS LLM Proxy</text>
+  
+  <rect x="40" y="390" width="380" height="60" rx="6" fill="#e8f7ff" stroke="#009596"/>
+  <text x="50" y="410" font-weight="700" fill="#009596">OpenShift Pipelines</text>
+  <text x="50" y="430" fill="#151515" font-size="11">Tekton CI/CD Image Builds</text>
+
+  <!-- Spoke Cluster -->
+  <rect x="560" y="20" width="370" height="450" rx="8" fill="none" stroke="#c9190b" stroke-dasharray="4,2"/>
+  <text x="575" y="45" font-weight="700" fill="#c9190b" font-size="14">Spoke Clusters (East / West)</text>
+
+  <rect x="580" y="70" width="330" height="80" rx="6" fill="#e8f7ff" stroke="#009596"/>
+  <text x="590" y="90" font-weight="700" fill="#009596">Service Mesh (Istio)</text>
+  <text x="590" y="110" fill="#151515" font-size="11">Ambient Mode L4/L7 Secure Routing</text>
+  <rect x="590" y="120" width="310" height="20" rx="3" fill="#fff" stroke="#009596"/><text x="600" y="134" fill="#151515" font-size="10">ztunnel / waypoint proxies</text>
+
+  <rect x="580" y="170" width="330" height="80" rx="6" fill="#f5f0ff" stroke="#8a8d90"/>
+  <text x="590" y="190" font-weight="700" fill="#151515">OpenShift AI (Edge)</text>
+  <text x="590" y="210" fill="#151515" font-size="11">ModelMesh / KServe InferenceServices</text>
+  <rect x="590" y="220" width="310" height="20" rx="3" fill="#fff" stroke="#8a8d90"/><text x="600" y="234" fill="#151515" font-size="10">YOLO PPE Detection / OpenVINO</text>
+
+  <rect x="580" y="270" width="330" height="80" rx="6" fill="#f2fde8" stroke="#3e8635"/>
+  <text x="590" y="290" font-weight="700" fill="#3e8635">NeuroFace Application</text>
+  <text x="590" y="310" fill="#151515" font-size="11">Vue Frontend &amp; Python Backend</text>
+  <rect x="590" y="320" width="310" height="20" rx="3" fill="#fff" stroke="#3e8635"/><text x="600" y="334" fill="#151515" font-size="10">Biometric 2FA &amp; Camera stream processing</text>
+
+  <rect x="580" y="370" width="330" height="80" rx="6" fill="#e7f1fa" stroke="#0066cc"/>
+  <text x="590" y="390" font-weight="700" fill="#0066cc">OpenShift Virtualization</text>
+  <text x="590" y="410" fill="#151515" font-size="11">KubeVirt VMs</text>
+  <rect x="590" y="420" width="310" height="20" rx="3" fill="#fff" stroke="#0066cc"/><text x="600" y="434" fill="#151515" font-size="10">Legacy workloads on the edge</text>
+
+  <!-- Service Interconnect Link -->
+  <rect x="420" y="180" width="160" height="40" rx="20" fill="#fff" stroke="#c9190b" stroke-width="2"/>
+  <text x="500" y="205" font-weight="700" fill="#c9190b" text-anchor="middle">Service Interconnect</text>
+  
+  <line x1="220" y1="200" x2="420" y2="200" stroke="#c9190b" stroke-width="2" marker-end="url(#arch-arrow)"/>
+  <line x1="580" y1="200" x2="560" y2="200" stroke="#c9190b" stroke-width="2" marker-end="url(#arch-arrow)"/>
+  <line x1="560" y1="200" x2="580" y2="200" stroke="#c9190b" stroke-width="2" marker-end="url(#arch-arrow)"/>
+
+</svg>
+</div>
+++++
+
+== Scaffolding sequence diagram
+
+++++
+<div class="workshop-crd-graph" style="margin:1.5rem 0;background:var(--pf-v5-global--BackgroundColor--200,#f0f0f0);border:1px solid var(--pf-v5-global--BorderColor--100,#d2d2d2);border-radius:var(--pf-v5-global--BorderRadius--sm,3px);padding:1rem;overflow-x:auto;">
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:800px;height:auto;font-family:'Red Hat Text','RedHatText',Helvetica,Arial,sans-serif;font-size:12px;">
+  <defs>
+     <marker id="seq-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0066cc"/></marker>
+     <marker id="seq-arrow-dashed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#6a6e73"/></marker>
+  </defs>
+  
+  <!-- Lifelines -->
+  <line x1="100" y1="60" x2="100" y2="420" stroke="#d2d2d2" stroke-dasharray="4,4"/>
+  <line x1="250" y1="60" x2="250" y2="420" stroke="#d2d2d2" stroke-dasharray="4,4"/>
+  <line x1="400" y1="60" x2="400" y2="420" stroke="#d2d2d2" stroke-dasharray="4,4"/>
+  <line x1="550" y1="60" x2="550" y2="420" stroke="#d2d2d2" stroke-dasharray="4,4"/>
+  <line x1="700" y1="60" x2="700" y2="420" stroke="#d2d2d2" stroke-dasharray="4,4"/>
+
+  <!-- Headers -->
+  <rect x="60" y="20" width="80" height="30" rx="4" fill="#0066cc" stroke="none"/><text x="100" y="40" fill="#fff" text-anchor="middle" font-weight="700">User</text>
+  <rect x="200" y="20" width="100" height="30" rx="4" fill="#6753ac" stroke="none"/><text x="250" y="40" fill="#fff" text-anchor="middle" font-weight="700">Developer Hub</text>
+  <rect x="360" y="20" width="80" height="30" rx="4" fill="#e25100" stroke="none"/><text x="400" y="40" fill="#fff" text-anchor="middle" font-weight="700">GitLab</text>
+  <rect x="510" y="20" width="80" height="30" rx="4" fill="#f0ab00" stroke="none"/><text x="550" y="40" fill="#fff" text-anchor="middle" font-weight="700">Argo CD</text>
+  <rect x="650" y="20" width="100" height="30" rx="4" fill="#009596" stroke="none"/><text x="700" y="40" fill="#fff" text-anchor="middle" font-weight="700">Spoke Cluster</text>
+
+  <!-- Messages -->
+  <!-- 1. Fill Form -->
+  <line x1="100" y1="90" x2="245" y2="90" stroke="#0066cc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <text x="175" y="85" text-anchor="middle" fill="#151515">1. Fill software template</text>
+  
+  <!-- 2. Create Repo -->
+  <line x1="250" y1="130" x2="395" y2="130" stroke="#0066cc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <text x="325" y="125" text-anchor="middle" fill="#151515">2. Publish repo (scaffolder)</text>
+  
+  <!-- 3. Return Repo URL -->
+  <line x1="400" y1="170" x2="255" y2="170" stroke="#6a6e73" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#seq-arrow-dashed)"/>
+  <text x="325" y="165" text-anchor="middle" fill="#6a6e73">3. Return repo URL</text>
+
+  <!-- 4. Register Component -->
+  <rect x="245" y="180" width="10" height="30" fill="#6753ac"/>
+  <path d="M 255 185 L 280 185 L 280 205 L 255 205" fill="none" stroke="#0066cc" marker-end="url(#seq-arrow)"/>
+  <text x="285" y="198" fill="#151515">4. Register in Catalog</text>
+
+  <!-- 5. AppSet Detects -->
+  <line x1="550" y1="240" x2="405" y2="240" stroke="#0066cc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <text x="475" y="235" text-anchor="middle" fill="#151515">5. AppSet detects new repo</text>
+
+  <!-- 6. App Creation -->
+  <rect x="545" y="250" width="10" height="30" fill="#f0ab00"/>
+  <path d="M 555 255 L 580 255 L 580 275 L 555 275" fill="none" stroke="#0066cc" marker-end="url(#seq-arrow)"/>
+  <text x="585" y="268" fill="#151515">6. Generate Application CR</text>
+
+  <!-- 7. Deploy to Spoke -->
+  <line x1="550" y1="320" x2="695" y2="320" stroke="#0066cc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <text x="625" y="315" text-anchor="middle" fill="#151515">7. Sync manifests (GitOps)</text>
+
+  <!-- 8. Start Pipeline -->
+  <rect x="695" y="330" width="10" height="40" fill="#009596"/>
+  <path d="M 705 335 L 730 335 L 730 365 L 705 365" fill="none" stroke="#0066cc" marker-end="url(#seq-arrow)"/>
+  <text x="735" y="354" fill="#151515">8. Tekton PipelineRun</text>
+
+  <!-- 9. Ready -->
+  <line x1="700" y1="400" x2="105" y2="400" stroke="#6a6e73" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#seq-arrow-dashed)"/>
+  <text x="400" y="395" text-anchor="middle" fill="#6a6e73">9. App available via Gateway / Mesh</text>
+
+</svg>
+</div>
+++++
+
 == Red Hat Connectivity Link (Kuadrant)
 
 Documentation: link:https://docs.redhat.com/en/documentation/red_hat_connectivity_link[Red Hat Connectivity Link]
@@ -544,6 +694,155 @@ spec:
       modelFormat:
         name: openvino
       storageUri: s3://models/yolo-ppe
+----
+
+== OpenShift GitOps (Argo CD)
+
+Documentation: link:https://docs.redhat.com/en/documentation/red_hat_openshift_gitops[Red Hat OpenShift GitOps]
+
+=== ApplicationSet
+
+*Purpose*: Automatically generate Argo CD `Application` resources based on discovered GitLab repositories.
+In this workshop, an `ApplicationSet` watches the `ws-workshop` GitLab group and automatically deploys any repository matching the `^neuroface-` prefix to the appropriate spoke cluster.
+
+[source,yaml]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: user-neuroface-apps
+  namespace: vp-gitops
+spec:
+  generators:
+    - matrix:
+        generators:
+          - scmProvider:
+              gitlab:
+                group: "ws-workshop"
+                api: https://gitlab.apps.<hub-domain>/api/v4
+              filters:
+                - repositoryMatch: "^neuroface-"
+          - git:
+              repoURL: "https://gitlab.apps.<hub-domain>/ws-workshop/{{ '{{ .repository }}' }}.git"
+              revision: HEAD
+              files:
+                - path: k8s/target-cluster.yaml
+  template:
+    metadata:
+      name: "{{ '{{ .repository }}' }}"
+    spec:
+      project: ai
+      source:
+        repoURL: "https://gitlab.apps.<hub-domain>/ws-workshop/{{ '{{ .repository }}' }}.git"
+        targetRevision: HEAD
+        path: k8s
+      destination:
+        name: "{{ '{{ .cluster }}' }}"
+        namespace: "{{ '{{ .repository }}' }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+----
+
+=== Application
+
+*Purpose*: A generated resource that manages the deployment of manifests from a Git repository to a specific target cluster namespace.
+
+== OpenShift Pipelines (Tekton)
+
+Documentation: link:https://docs.redhat.com/en/documentation/red_hat_openshift_pipelines[Red Hat OpenShift Pipelines]
+
+=== Pipeline
+
+*Purpose*: Defines a reusable series of `Task` resources that execute in a specific order.
+The scaffolded NeuroFace repositories include a Tekton pipeline that builds the backend container image using `buildah`.
+
+[source,yaml]
+----
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: neuroface-build
+spec:
+  params:
+    - name: image-tag
+      type: string
+      default: latest
+  workspaces:
+    - name: source
+    - name: dockerconfig
+  tasks:
+    - name: build-backend
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      params:
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/neuroface-backend:$(params.image-tag)
+----
+
+=== PipelineRun
+
+*Purpose*: Instantiates a `Pipeline` execution, binding it to specific workspaces (like PersistentVolumeClaims) and parameters.
+
+== OpenShift Virtualization
+
+Documentation: link:https://docs.redhat.com/en/documentation/openshift_virtualization[OpenShift Virtualization]
+
+=== VirtualMachine
+
+*Purpose*: Run legacy, edge, or specific VM-based workloads natively alongside containers.
+Developer Hub provides a software template (`cnv-vm-workshop`) to scaffold a VM dynamically.
+
+[source,yaml]
+----
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: my-vm-lab
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        memory:
+          guest: 512Mi
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: quay.io/containerdisks/cirros:5.2.0
+----
+
+== HashiCorp Vault / External Secrets
+
+=== ClusterSecretStore
+
+*Purpose*: Provides a cluster-wide connection definition for the External Secrets Operator to securely authenticate and fetch secrets from Vault.
+
+[source,yaml]
+----
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "http://vault.vault.svc.cluster.local:8200"
+      path: "secret"
+      version: "v2"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "validatedPatternDefaultPolicy"
 ----
 
 == Full pattern reference
