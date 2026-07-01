@@ -65,6 +65,27 @@ curl -sk -H "Authorization: APIKEY ${API_KEY}" \
   "https://ai-gateway.%HUB_DOMAIN%/v1/models" | python3 -m json.tool 2>/dev/null | head -20
 ----
 
+== Alternative: OIDC instead of an API key
+
+The `ai-maas` route accepts **either** credential — pick whichever is convenient. This is the same "dual auth" `AuthPolicy` pattern, just applied to the AI Gateway instead of a Keycloak-protected route:
+
+[source,sh,role=execute]
+----
+hub-login %USER_NAME%
+export CLIENT_ID="client-maas-%USER_NAME%"
+export CLIENT_SECRET=$(oc get secret keycloak-client-maas-%USER_NAME% -n keycloak-system \
+  -o jsonpath='{.data.clientSecret}' 2>/dev/null | base64 -d)
+TOKEN=$(curl -sk -X POST "https://sso.%HUB_DOMAIN%/realms/maas/protocol/openid-connect/token" \
+  -d "grant_type=client_credentials&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+curl -sk -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+  -d '{"model":"llama-scout-17b","messages":[{"role":"user","content":"Hello"}]}' \
+  "https://ai-gateway.%HUB_DOMAIN%/v1/chat/completions" | head -c 300
+echo
+----
+
+In Developer Hub's Swagger UI (*Catalog* → *MaaS OpenAPI* → *Definition* tab), the *Authorize* dialog offers both **ApiKeyAuth** and **OAuth2ClientCredentials** — either one works on the same endpoint. API-key calls land on the `free`/`gold` rate-limit tier; OIDC calls land on a separate `oidc` tier.
+
 == Contrast: direct MaaS (optional)
 
 The hub OpenShift AI dashboard may still show the upstream MaaS endpoint for reference:
@@ -95,6 +116,7 @@ NeuroFace gateway: HTTP 200
 * All MaaS traffic from workshop apps flows through AI Gateway on the hub
 * User API keys are issued via Developer Hub Kuadrant integration
 * Platform keys (`ai-gateway-platform-keys`) are auto-generated in Vault at install time
+* The `ai-maas` route accepts an API key **or** a realm-`maas` OIDC token on the same endpoint (dual auth)
 
 == Next
 

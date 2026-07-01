@@ -173,7 +173,7 @@ You can verify the same endpoint with curl using the token from <<step-3,Step 3>
 
 == Step 6 — AI Gateway with APIKEY (contrast with OIDC)
 
-OIDC protects the NeuroFace CV route (`neuroface-cv`). The AI Gateway route uses Kuadrant *APIKEY* auth instead.
+The NeuroFace CV route (`neuroface-cv`) accepts OIDC only. The AI Gateway route (`ai-maas`) is **dual auth** — it accepts a Kuadrant *APIKEY* (below) **or** a realm-`maas` OIDC Bearer token (see Module 05, "Alternative: OIDC instead of an API key") on the same endpoint.
 
 [source,sh,role=execute]
 ----
