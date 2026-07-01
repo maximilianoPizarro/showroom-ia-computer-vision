@@ -51,7 +51,43 @@ Always use `https://keycloak.%HUB_DOMAIN%/` for both admin and account consoles.
 For API access only (no UI needed), skip to <<step-3,Step 3>> and use `client_credentials` with curl.
 ====
 
-== Step 2 — Create your own OIDC client (optional)
+[#step-1b]
+== Step 1b — OIDC self-service via Developer Hub (recommended)
+
+Instead of creating clients manually in the Keycloak Admin Console, use the bundled scaffolder templates in Developer Hub. They call Keycloak's Admin REST API through the `/keycloak` proxy using the `backstage-provisioner` service account.
+
+=== Create a client
+
+. Open `https://developer-hub.%HUB_DOMAIN%/`
+. Log in with `%USER_NAME%` / `Welcome123!` (Keycloak realm *backstage*)
+. *Create* → **OIDC credentials self-service (Keycloak cv)**
+. **Target API**: *Computer Vision OpenAPI* (`neuroface-cv-openapi`)
+. **Client label**: a short name such as `team-a` or `%USER_NAME%` (lowercase letters, numbers, hyphens only)
+. **Grant type**: *Client credentials (M2M)*
+. **Requester** / **Owner**: your workshop user and group
+. Run the template — the task result page shows **Client ID** and **Client Secret** once (copy them immediately)
+
+The generated client ID follows the pattern `client-neuroface-cv-openapi-<label>`.
+
+[NOTE]
+====
+The template sets `webOrigins: ["*"]` on new clients so Swagger UI's OAuth2 *Authorize* dialog can fetch tokens from Keycloak directly in the browser.
+====
+
+=== Revoke a client
+
+When you no longer need a self-service client:
+
+. *Create* → **Revoke OIDC client (Keycloak cv)**
+. Select the same **Target API** and **Client label** used at creation
+. Confirm deletion on the task result page
+
+[TIP]
+====
+You can still create clients manually in the Admin Console (<<step-2,Step 2>>) or use the pre-provisioned `client-cv-%USER_NAME%` client from Vault.
+====
+
+== Step 2 — Create your own OIDC client in Admin Console (optional)
 
 Workshop users have roles `view-clients` and `manage-clients` on the `realm-management` client, so you can create your own clients in realm `cv`.
 
@@ -115,8 +151,25 @@ curl -sk -H "Authorization: Bearer $TOKEN" \
 . Open `https://developer-hub.%HUB_DOMAIN%/`
 . Log in with `%USER_NAME%` / `Welcome123!` (Keycloak realm *backstage*)
 . *Catalog* → System *IAM / OIDC Realms* → API *Computer Vision OpenAPI*
-. *Definition* tab → *Try it out* on `/api/ppe/status` or `/v1/predict`
-. Authorize with Bearer token from Step 3
+. Open the *Definition* tab (embedded Swagger UI)
+. Click *Authorize* (lock icon)
+. Under **OAuth2ClientCredentials**, enter:
+** **client_id**: from Step 1b (self-service) or Step 2/3 (e.g. `client-cv-%USER_NAME%` or `client-neuroface-cv-openapi-<label>`)
+** **client_secret**: the matching secret from the scaffolder result page, Vault-synced secret, or Admin Console *Credentials* tab
+. Click *Authorize*, then *Close*
+. Expand `/api/ppe/status` (or `/v1/predict`) → *Try it out* → *Execute*
+
+[NOTE]
+====
+Swagger UI uses the OpenAPI **OAuth2 client_credentials** flow — it POSTs directly to `https://keycloak.%HUB_DOMAIN%/realms/cv/protocol/openid-connect/token` and sends the returned Bearer token on API calls. You do **not** paste a token manually.
+
+If *Execute* fails with a CORS error, confirm the OIDC client has `webOrigins` set (self-service clients include `*`). The gateway also injects CORS headers and handles `OPTIONS` preflight for browser requests.
+====
+
+[TIP]
+====
+You can verify the same endpoint with curl using the token from <<step-3,Step 3>> before trying Swagger UI.
+====
 
 == Step 6 — AI Gateway with APIKEY (contrast with OIDC)
 
@@ -136,8 +189,9 @@ echo
 
 * RHBK realms (`cv`, `neuroface`, `maas`) issue JWTs for RHCL OIDCPolicy
 * `client_credentials` grant works for machine-to-machine API access
-* Workshop users can self-service create OIDC clients via the Admin Console
-* Developer Hub IAM catalog exposes OpenAPI specs with Swagger *Try it out*
+* Developer Hub scaffolder templates create and revoke OIDC clients in realm `cv` (self-service)
+* Workshop users can also create OIDC clients via the Keycloak Admin Console
+* Developer Hub IAM catalog exposes OpenAPI specs with Swagger *Try it out* (OAuth2 client_credentials)
 * MaaS supports both OIDC (route `ai-maas`) and APIKEY (route `ai-gateway`)
 
 == Next

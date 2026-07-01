@@ -34,7 +34,7 @@ The embedded terminal on the right supports helper commands:
 hub-login %USER_NAME%
 east-login %USER_NAME%
 west-login %USER_NAME%
-neuroface-cv-status
+neuroface-cv-status %USER_NAME%
 neuroface-cv-traffic
 neuroface-spoke-status %USER_NAME%
 ----

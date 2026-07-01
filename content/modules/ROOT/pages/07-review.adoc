@@ -130,8 +130,7 @@ spec:
 [source,sh,role=execute]
 ----
 hub-login %USER_NAME%
-east-login %USER_NAME%
-neuroface-cv-status
+neuroface-cv-status %USER_NAME%
 neuroface-cv-traffic
 neuroface-spoke-status %USER_NAME%
 ----
@@ -158,7 +157,7 @@ Traffic flows from the hub to spoke clusters via Skupper service interconnect:
 . A CronJob pushes `AccessToken` to each spoke via ACM `ManagedClusterAction`
 . Each spoke creates a `Site` + `Connector` pointing to its local spoke gateway
 . Hub `Listeners` create services that route to spoke connectors
-. `HTTPRoute` with 50/50 weight distributes requests between east and west
+. `HTTPRoute` backend weights are configured **per route** — for example `neuroface-app-lb` may use 50/50 east/west, while `neuroface-cv-lb` may steer 100% to one spoke depending on `values-hub.yaml`
 
 The cluster badge in the NeuroFace UI header shows which spoke is serving:
 

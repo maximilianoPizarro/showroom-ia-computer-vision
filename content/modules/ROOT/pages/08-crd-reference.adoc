@@ -637,27 +637,40 @@ spec:
 
 === Software Templates (Scaffolder)
 
-*Purpose*: One-click self-service to deploy a personal NeuroFace instance with RHBK, OIDC, and ArgoCD.
+*Purpose*: Self-service workflows in Developer Hub — deploy personal NeuroFace instances, create/revoke OIDC clients, and register components in the catalog.
 
 Chart: `charts/all/developer-hub/files/software-templates/`
+
+[cols="2,3",options="header"]
+|===
+| Template | Purpose
+
+| `ai-computer-vision`
+| Scaffold a personal NeuroFace instance on east or west spoke (GitLab publish + catalog register)
+
+| `oidc-credentials-self-service`
+| Create an OIDC client in Keycloak realm `cv` for API access (secret shown once on result page)
+
+| `oidc-credentials-revoke`
+| Delete a client created by the self-service template (same API + client label)
+|===
 
 [source,yaml]
 ----
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: ai-cv-neuroface-workshop
-  title: "NeuroFace — AI Computer Vision"
+  name: ai-computer-vision
+  title: "AI Computer Vision at the Edge"
 spec:
-  owner: group:default/platform-engineering
+  owner: platform-engineering
   type: service
   parameters:
-    - title: Configuration
+    - title: AI CV instance
       properties:
         owner:
-          title: Workshop user
-          type: string
-          default: user1
+          title: Owner
+          ui:field: OwnerPicker
         spoke:
           title: Target spoke
           type: string
@@ -788,15 +801,20 @@ spec:
 
 == OpenShift Virtualization
 
-Documentation: link:https://docs.redhat.com/en/documentation/openshift_virtualization[OpenShift Virtualization]
+[NOTE]
+====
+**Not included in this pattern installation.** OpenShift Virtualization / KubeVirt is not deployed by the AI Computer Vision Validated Pattern, and there is no `cnv-vm-workshop` software template in Developer Hub. The diagram above shows a generic edge reference architecture only.
+====
 
-=== VirtualMachine
+Documentation (for future extensions): link:https://docs.redhat.com/en/documentation/openshift_virtualization[OpenShift Virtualization]
 
-*Purpose*: Run legacy, edge, or specific VM-based workloads natively alongside containers.
-Developer Hub provides a software template (`cnv-vm-workshop`) to scaffold a VM dynamically.
+=== VirtualMachine (reference only)
+
+*Purpose*: Run legacy VM-based workloads alongside containers. Not provisioned by this workshop pattern.
 
 [source,yaml]
 ----
+# Reference example — not deployed by ia-computer-vision
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
@@ -810,15 +828,6 @@ spec:
           cores: 1
         memory:
           guest: 512Mi
-        devices:
-          disks:
-            - name: containerdisk
-              disk:
-                bus: virtio
-      volumes:
-        - name: containerdisk
-          containerDisk:
-            image: quay.io/containerdisks/cirros:5.2.0
 ----
 
 == HashiCorp Vault / External Secrets

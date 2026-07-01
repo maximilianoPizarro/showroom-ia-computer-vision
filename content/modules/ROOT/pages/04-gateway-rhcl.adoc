@@ -35,7 +35,9 @@ spec:
       protocol: HTTP
 ----
 
-== Inspect HTTPRoute with 50/50 weights
+== Inspect HTTPRoute with 50/50 weights (NeuroFace app)
+
+The main NeuroFace UI route (`neuroface-app-lb`) uses equal east/west weights by default. Other routes (for example `neuroface-cv-lb`) may use different weights — check `values-hub.yaml` or the live `HTTPRoute` spec.
 
 [source,yaml]
 ----
