@@ -8,6 +8,18 @@
 
 This module summarizes Kubernetes custom resources (CRs) used in the *AI Computer Vision at the Edge* Validated Pattern. Helm templates under `charts/all/` are the source of truth; examples below are simplified for workshop reading.
 
+== How a self-service OIDC client becomes a rate-limit tier
+
+When a workshop user runs the *OIDC credentials self-service* scaffolder template in Developer Hub, the chosen plan tier flows through the gateway stack in five steps:
+
+. The user selects `planTier` (`free` or `gold`) on the template form.
+. The template creates a Keycloak client with an `oidc-hardcoded-claim-mapper` protocol mapper that embeds `plan: <tier>` in every JWT.
+. The client obtains a token from realm `cv` (`client_credentials` or Bearer flow).
+. Kuadrant `AuthPolicy` (`authpolicy-cv` on `neuroface-cv-lb`) validates the JWT issuer (`keycloak.<hub-domain>/realms/cv`) and admits the request.
+. `RateLimitPolicy` and `PlanPolicy` on `neuroface-cv-lb` match `auth.identity.plan == "free"` or `"gold"` and apply `/v1/predict` limits (100/h or 500/h).
+
+The MaaS route (`ai-maas`) uses the same dual-auth pattern (`APIKEY` or OIDC JWT) with `PlanPolicy` and `TokenRateLimitPolicy` tiers on `/v1/chat/completions` instead of per-request limits.
+
 == Resource relationship map
 
 ++++
@@ -270,56 +282,76 @@ Documentation: link:https://docs.redhat.com/en/documentation/red_hat_connectivit
 
 === OIDCPolicy
 
-*Purpose*: Enforce OIDC authentication on Gateway API HTTPRoutes.
-Keycloak issues JWTs; the Gateway validates them before forwarding traffic.
+*Purpose*: Enforce browser redirect OIDC login on Gateway API HTTPRoutes (interactive sessions).
 
-Chart: `charts/all/workshop-kuadrant-apis/templates/oidcpolicy-*.yaml`
+Chart: `charts/all/neuroface-gateway/templates/oidcpolicy-realms.yaml`
+
+[NOTE]
+====
+`neuroface-cv-lb` deliberately does **not** use `OIDCPolicy`. That route serves API clients with Bearer tokens, not browser logins. An `OIDCPolicy` redirect breaks CORS preflight (OPTIONS requests cannot carry a token). Realm `cv` on `neuroface-cv-lb` uses `AuthPolicy` + `jwt-users` instead (see below).
+====
 
 [source,yaml]
 ----
 apiVersion: extensions.kuadrant.io/v1alpha1
 kind: OIDCPolicy
 metadata:
-  name: oidc-cv
+  name: oidc-neuroface
   namespace: neuroface-gateway-system
 spec:
   provider:
-    issuerURL: https://sso.%HUB_DOMAIN%/realms/cv
-    clientID: client-cv-user1
+    issuerURL: https://sso.%HUB_DOMAIN%/realms/neuroface
+    clientID: client-neuroface-user1
+    authorizationEndpoint: https://sso.%HUB_DOMAIN%/realms/neuroface/protocol/openid-connect/auth
+    tokenEndpoint: https://sso.%HUB_DOMAIN%/realms/neuroface/protocol/openid-connect/token
+    redirectURI: https://neuroface.%HUB_DOMAIN%/auth/callback
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
-    name: neuroface-cv-lb
+    name: neuroface-app-lb
+  auth:
+    tokenSource:
+      authorizationHeader:
+        prefix: Bearer
+        name: Authorization
+      cookie:
+        name: jwt
 ----
 
-*Connection*: `OIDCPolicy` → `HTTPRoute` → `Gateway` → backend Service (via Skupper on spokes).
+*Connection*: `OIDCPolicy` → `HTTPRoute` → `Gateway` → backend Service (via Skupper on spokes). Per-user scaffolded NeuroFace instances on spokes use the same redirect pattern against their local RHBK realm.
 
 === AuthPolicy
 
-*Purpose*: API-key extraction and authorization (`APIKEY` header).
+*Purpose*: API-key and/or JWT authentication on Gateway API HTTPRoutes. A single `AuthPolicy` can declare multiple identity sources; Authorino admits the request if any one succeeds ("dual auth").
 
 [source,yaml]
 ----
 apiVersion: kuadrant.io/v1
 kind: AuthPolicy
 metadata:
-  name: workshop-httpbin-auth
+  name: authpolicy-cv
+  namespace: neuroface-gateway-system
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
-    name: workshop-httpbin
-  authRules:
-    apikey:
-      apiKeySelector:
-        selector:
-          matchLabels:
-            kuadrant.io/auth-policy: workshop-httpbin
+    name: neuroface-cv-lb
+  when:
+    - predicate: request.method != "OPTIONS"
+  rules:
+    authentication:
+      jwt-users:
+        jwt:
+          issuerUrl: https://keycloak.%HUB_DOMAIN%/realms/cv
 ----
+
+*Connection*: `AuthPolicy` → `HTTPRoute` → Keycloak JWT issuer. Workshop APIs (for example `ai-maas`) add an `api-key-users` source alongside `jwt-users` for dual auth.
+
+Chart: `charts/all/workshop-kuadrant-apis/templates/policies.yaml`
 
 === RateLimitPolicy
 
-*Purpose*: Protect backends with per-route request limits.
+*Purpose*: Per-route request limits keyed off authenticated identity (JWT claims or client IP).
 
 [source,yaml]
 ----
@@ -327,34 +359,160 @@ apiVersion: kuadrant.io/v1
 kind: RateLimitPolicy
 metadata:
   name: neuroface-cv-ratelimit
+  namespace: neuroface-gateway-system
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: neuroface-cv-lb
-  rateLimits:
-    - limits:
-        - maxValue: 120
-          unit: minute
+  limits:
+    predict-free:
+      when:
+        - predicate: 'request.path.matches("^/v1/predict")'
+        - predicate: 'has(auth.identity) && has(auth.identity.plan) && auth.identity.plan == "free"'
+      counters:
+        - expression: auth.identity.sub
+      rates:
+        - limit: 100
+          window: 1h
+    predict-gold:
+      when:
+        - predicate: 'request.path.matches("^/v1/predict")'
+        - predicate: 'has(auth.identity) && has(auth.identity.plan) && auth.identity.plan == "gold"'
+      counters:
+        - expression: auth.identity.sub
+      rates:
+        - limit: 500
+          window: 1h
+    predict-default:
+      when:
+        - predicate: 'request.path.matches("^/v1/predict")'
+        - predicate: '!(has(auth.identity) && has(auth.identity.plan))'
+      counters:
+        - expression: request.headers['x-forwarded-for']
+      rates:
+        - limit: 30
+          window: 1m
 ----
+
+*Connection*: `RateLimitPolicy` → `HTTPRoute`. The `plan` JWT claim (from the self-service template's `planTier` parameter) selects the `predict-free` or `predict-gold` tier.
+
+Chart: `charts/all/neuroface-gateway/templates/ratelimit-policy.yaml`
+
+=== PlanPolicy
+
+*Purpose*: Publish discoverable rate-limit tiers in the Kuadrant DevPortal plugin (Developer Hub API entity Kuadrant tab).
+
+[source,yaml]
+----
+apiVersion: extensions.kuadrant.io/v1alpha1
+kind: PlanPolicy
+metadata:
+  name: neuroface-cv-plans
+  namespace: neuroface-gateway-system
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: neuroface-cv-lb
+  plans:
+    - tier: free
+      predicate: |
+        has(auth.identity) && has(auth.identity.plan) && auth.identity.plan == "free"
+      limits:
+        custom:
+          - limit: 100
+            window: 1h
+    - tier: gold
+      predicate: |
+        has(auth.identity) && has(auth.identity.plan) && auth.identity.plan == "gold"
+      limits:
+        custom:
+          - limit: 500
+            window: 1h
+----
+
+*Connection*: `PlanPolicy` → `HTTPRoute` → DevPortal discovered-plans UI. Pairs with `RateLimitPolicy` on the same route.
+
+Chart: `charts/all/neuroface-gateway/templates/plan-policy.yaml`
+
+=== TokenRateLimitPolicy
+
+*Purpose*: Token-budget rate limits for LLM endpoints (counts tokens, not requests).
+
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1alpha1
+kind: TokenRateLimitPolicy
+metadata:
+  name: ai-maas-token-limits
+  namespace: ai-gateway-system
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: ai-maas
+  limits:
+    free:
+      rates:
+        - limit: 50
+          window: 1m
+      when:
+        - predicate: request.path == "/v1/chat/completions"
+        - predicate: |
+            auth.identity.metadata.annotations["secret.kuadrant.io/plan-id"] == "free" ||
+            auth.identity.groups.split(",").exists(g, g == "free")
+      counters:
+        - expression: auth.identity.userid
+    oidc:
+      rates:
+        - limit: 50
+          window: 1m
+      when:
+        - predicate: request.path == "/v1/chat/completions"
+        - predicate: has(auth.identity.iss)
+      counters:
+        - expression: auth.identity.sub
+----
+
+*Connection*: `TokenRateLimitPolicy` → `HTTPRoute` (`ai-maas`). Works with dual-auth `AuthPolicy` and `PlanPolicy` tiers (`free`, `gold`, `oidc`).
+
+Chart: `charts/all/workshop-kuadrant-apis/templates/policies.yaml`
 
 === APIProduct
 
 *Purpose*: Expose an HTTPRoute as an API entry in Developer Hub (Kuadrant DevPortal plugin).
-Users request API keys through *Catalog → API entity → Kuadrant tab*.
+
+[IMPORTANT]
+====
+`metadata.name` must exactly match the Backstage API entity name. The Kuadrant frontend plugin builds "View in Catalog" links as `/catalog/default/api/<metadata.name>`, not from `documentation.docsURL`. Example: `neuroface-cv-openapi` (not `neuroface-cv` or `neuroface-cv-oidc`).
+====
 
 [source,yaml]
 ----
-apiVersion: devportal.kuadrant.io/v1beta1
+apiVersion: devportal.kuadrant.io/v1alpha1
 kind: APIProduct
 metadata:
-  name: workshop-httpbin
+  name: neuroface-cv-openapi
+  namespace: neuroface-gateway-system
 spec:
-  reference:
+  displayName: Computer Vision API
+  description: YOLO PPE detection API protected by realm-cv OIDC JWTs.
+  publishStatus: Published
+  approvalMode: manual
+  version: v1
+  tags: [neuroface, cv, oidc, ppe, edge, gateway-api]
+  documentation:
+    docsURL: https://developer-hub.%HUB_DOMAIN%/catalog/default/api/neuroface-cv-openapi
+  contact:
+    email: platform@example.com
+  targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
-    name: workshop-httpbin
+    name: neuroface-cv-lb
 ----
+
+Chart: `charts/all/neuroface-gateway/templates/apiproducts.yaml`
 
 == Kubernetes Gateway API
 
@@ -534,6 +692,8 @@ spec:
 
 Documentation: link:https://docs.redhat.com/en/documentation/openshift_service_mesh[OpenShift Service Mesh]
 
+=== Istio
+
 [source,yaml]
 ----
 apiVersion: sailoperator.io/v1alpha1
@@ -544,6 +704,30 @@ metadata:
 spec:
   profile: ambient
 ----
+
+*Connection*: Istio control plane → Gateway controller → `ZTunnel` data plane (ambient L4 mTLS and mesh telemetry).
+
+Chart: VP `servicemesh-config` application (`servicemesh` chart, `profile: ambient`)
+
+=== ZTunnel
+
+*Purpose*: Deploy the ambient mesh data plane (`ztunnel` DaemonSet). Required for L4 mTLS and Istio metrics (`istio_requests_total`, `istio_tcp_*`) consumed by Kiali and Grafana.
+
+[source,yaml]
+----
+apiVersion: sailoperator.io/v1
+kind: ZTunnel
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  namespace: ztunnel
+  version: v1.28.8
+----
+
+*Connection*: `ZTunnel` → `ztunnel` namespace DaemonSet on every node. Without this CR, `oc get istio default -n istio-system` reports `ZTunnelNotFound` and mesh telemetry panels show no data.
+
+Chart: `charts/all/istio-ztunnel/templates/ztunnel.yaml`
 
 == Red Hat Developer Hub
 
@@ -649,7 +833,7 @@ Chart: `charts/all/developer-hub/files/software-templates/`
 | Scaffold a personal NeuroFace instance on east or west spoke (GitLab publish + catalog register)
 
 | `oidc-credentials-self-service`
-| Create an OIDC client in Keycloak realm `cv` for API access (secret shown once on result page)
+| Create an OIDC client in Keycloak realm `cv` for API access. Select `planTier` (`free`/`gold`) to embed a `plan` JWT claim for rate limits on `/v1/predict` (secret shown once on result page)
 
 | `oidc-credentials-revoke`
 | Delete a client created by the self-service template (same API + client label)
