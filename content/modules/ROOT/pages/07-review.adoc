@@ -130,8 +130,10 @@ spec:
 [source,sh,role=execute]
 ----
 hub-login %USER_NAME%
+east-login %USER_NAME%
 neuroface-cv-status
-neuroface-spoke-status
+neuroface-cv-traffic
+neuroface-spoke-status %USER_NAME%
 ----
 
 Thank you for completing the workshop!
@@ -140,12 +142,13 @@ Thank you for completing the workshop!
 
 The pattern integrates Red Hat Build of Keycloak (RHBK) for OIDC authentication:
 
-* **SSO URL**: `https://sso.apps.<hub_domain>` (not `keycloak.apps`)
-* **Backstage realm**: Used by Developer Hub, DevSpaces
-* **neuroface, maas, cv realms**: Provisioned by the `rhbk-iam` chart for API protection
-* **Login**: Workshop users authenticate with `userN` / `Welcome123!`
+* **OIDC issuer** (RHCL OIDCPolicy): `https://sso.%HUB_DOMAIN%/realms/<realm>`
+* **Admin / account consoles**: `https://keycloak.%HUB_DOMAIN%/` (realm `cv`, `backstage`, etc.)
+* **Backstage realm**: Used by Developer Hub and DevSpaces login
+* **cv, neuroface, maas realms**: Provisioned by the `rhbk-iam` chart for API protection
+* **Workshop login**: `userN` / `Welcome123!`
 
-The main demo route (`neuroface.apps.<hub>`) runs **without OIDC** to allow the frontend to display EAST/WEST cluster badges. The Computer Vision API route (`neuroface-cv.apps.<hub>`) is protected by the `cv` realm OIDCPolicy.
+The main NeuroFace route (`neuroface.%HUB_DOMAIN%`) allows unauthenticated access for EAST/WEST badges. The CV API route (`neuroface-cv.%HUB_DOMAIN%`) requires OIDC Bearer tokens from realm `cv`.
 
 == Skupper Multi-Cluster Connectivity
 

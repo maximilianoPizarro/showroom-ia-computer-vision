@@ -75,6 +75,7 @@ Use the pre-provisioned client or your own from Step 2.
 
 [source,sh,role=execute]
 ----
+hub-login %USER_NAME%
 export CLIENT_ID="client-cv-%USER_NAME%"
 export CLIENT_SECRET=$(oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system \
   -o jsonpath='{.data.clientSecret}' 2>/dev/null | base64 -d)
@@ -86,24 +87,26 @@ echo "Token length: ${#TOKEN}"
 
 [NOTE]
 ====
-If `Token length: 0`, verify the secret exists: `oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system`.
-The secret is provisioned by the External Secrets Operator from Vault path `secret/hub/keycloak/realms/cv/%USER_NAME%`.
+The OIDC issuer for RHCL policies is `https://sso.%HUB_DOMAIN%/realms/cv`. Token requests use the same RHBK instance via `https://keycloak.%HUB_DOMAIN%/`.
+If `Token length: 0`, verify: `oc get secret keycloak-client-cv-%USER_NAME% -n keycloak-system`.
+The secret is synced from Vault path `secret/hub/keycloak/realms/cv/userN`.
 ====
 
 == Step 4 — Call the CV API with Bearer token
 
+The gateway routes `/api/ppe/status` to the spoke OVMS health endpoint (OIDC-protected).
+
 [source,sh,role=execute]
 ----
 curl -sk -H "Authorization: Bearer $TOKEN" \
-  "https://neuroface-cv.%HUB_DOMAIN%/api/health" | python3 -m json.tool
+  "https://neuroface-cv.%HUB_DOMAIN%/api/ppe/status" | python3 -m json.tool
 ----
 
 .Expected output (example)
 [source,json]
 ----
 {
-  "status": "ok",
-  "cluster": "east"
+  "status": "ok"
 }
 ----
 
@@ -112,17 +115,16 @@ curl -sk -H "Authorization: Bearer $TOKEN" \
 . Open `https://developer-hub.%HUB_DOMAIN%/`
 . Log in with `%USER_NAME%` / `Welcome123!` (Keycloak realm *backstage*)
 . *Catalog* → System *IAM / OIDC Realms* → API *Computer Vision OpenAPI*
-. *Definition* tab → *Try it out* on `/api/health`
+. *Definition* tab → *Try it out* on `/api/ppe/status` or `/v1/predict`
 . Authorize with Bearer token from Step 3
 
-== Step 6 — MaaS with APIKEY (contrast with OIDC)
+== Step 6 — AI Gateway with APIKEY (contrast with OIDC)
 
-OIDC protects route `ai-maas`. The public AI Gateway route uses Kuadrant *APIKEY* auth instead.
+OIDC protects the NeuroFace CV route (`neuroface-cv`). The AI Gateway route uses Kuadrant *APIKEY* auth instead.
 
 [source,sh,role=execute]
 ----
-hub-login %USER_NAME%
-# Request API key in Developer Hub → Catalog → workshop-kuadrant-apis → workshop-maas-openapi → Kuadrant tab
+# Request API key: Developer Hub → Catalog → workshop-kuadrant-apis → MaaS LLM (ai-gateway) → Kuadrant tab
 curl -sk -H "Authorization: APIKEY <your-key>" \
   -H "Content-Type: application/json" \
   -d '{"model":"llama-scout-17b","messages":[{"role":"user","content":"Hello"}]}' \

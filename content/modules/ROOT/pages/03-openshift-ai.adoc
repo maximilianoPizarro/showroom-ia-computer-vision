@@ -106,9 +106,10 @@ OpenShift AI dashboard: HTTP 200
 
 == What you learned
 
-* OpenShift AI exposes MaaS models via `maas-workshop`
+* OpenShift AI exposes the dashboard and `maas-workshop` project for exploration
+* NeuroFace chat and Lightspeed reach LLMs through **AI Gateway** (`https://ai-gateway.%HUB_DOMAIN%/v1`)
 * DSCInitialization and DataScienceCluster CRs are GitOps-managed
-* MaaS API keys flow from Vault → Secret → dashboard connection
+* Platform API keys (`ai-gateway-platform-keys`) are auto-generated in Vault at install time
 
 == Next
 

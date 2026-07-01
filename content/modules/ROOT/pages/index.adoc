@@ -23,20 +23,22 @@ WARNING: These credentials are for this ephemeral sandbox environment only. Do n
 * Red Hat Developer Hub (Keycloak realm `backstage`)
 * GitLab and DevSpaces (provisioned per user)
 
+If you have not registered yet, open `%REGISTRATION_URL%` and enter your email to receive a `userN` assignment.
+
 == Lab terminal
 
 The embedded terminal on the right supports helper commands:
 
 [source,sh]
 ----
-hub-login user1
-east-login user1
-west-login user1
+hub-login %USER_NAME%
+east-login %USER_NAME%
+west-login %USER_NAME%
 neuroface-cv-status
 neuroface-cv-traffic
-neuroface-spoke-status
+neuroface-spoke-status %USER_NAME%
 ----
 
 == Next steps
 
-Continue with xref:getting-started.adoc[Getting started] or review the xref:architecture.adoc[Architecture overview].
+Continue with xref:01-welcome.adoc[Lab overview] or review the xref:08-crd-reference.adoc[CRD reference].

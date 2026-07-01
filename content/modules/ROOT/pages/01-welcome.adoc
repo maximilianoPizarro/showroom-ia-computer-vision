@@ -61,10 +61,10 @@ Use your assigned user (`user1` through `user30`) with password `Welcome123!`:
 
 [source,sh,role=execute]
 ----
-hub-login user1
+hub-login %USER_NAME%
 ----
 
-TIP: Replace `user1` with your assigned user number throughout the workshop.
+TIP: Your assigned user appears in the badge at the top after registration (`%USER_NAME%`).
 
 === Verify platform health
 
@@ -141,7 +141,7 @@ applications:
 
 [source,sh,role=execute]
 ----
-oc get applications -n openshift-gitops -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | head -15
+oc get applications -n vp-gitops -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | head -15
 ----
 
 .Expected output

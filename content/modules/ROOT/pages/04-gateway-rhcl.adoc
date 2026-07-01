@@ -134,10 +134,6 @@ spec:
 * HTTPRoute weights distribute traffic across east and west spokes
 * ExternalName Services bridge hub gateway to Skupper endpoints
 
-== Next
-
-Continue with xref:05-maas-api-key.adoc[Module 05 — MaaS API key and curl inference].
-
 === Inspect response headers
 
 [source,sh,role=execute]

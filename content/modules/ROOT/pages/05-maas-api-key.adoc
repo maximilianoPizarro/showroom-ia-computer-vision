@@ -1,4 +1,4 @@
-= MaaS API key and curl inference
+= AI Gateway API key and curl inference
 :_content-type: PROCEDURE
 // estimated time: 10 min
 
@@ -6,49 +6,39 @@
 <span class="workshop-time-badge">⏱ ~10 min</span>
 ++++
 
-NeuroFace chat uses MaaS (Models as a Service) — an external LLM endpoint. Obtain an API key and test inference with curl.
+NeuroFace chat, Lightspeed, and scaffolded apps reach MaaS through the **AI Gateway** on the hub — not the external MaaS endpoint directly. Obtain a Kuadrant API key and test inference with curl.
 
-== MaaS configuration
+== AI Gateway configuration
 
 image::m05-maas-inference.png[MaaS Inference Flow,align=center,width=100%]
 
-
 [source,yaml]
 ----
-# charts/all/spoke-neuroface/values.yaml (excerpt)
-neuroface:
-  chat:
-    modelEndpoint: "https://maas-rhdp.apps.maas.redhatworkshops.io/v1"
-    modelName: "llama-scout-17b"
+# charts/all/developer-hub/files/software-templates/ai-computer-vision.yaml (excerpt)
+maasEndpoint:
+  default: https://ai-gateway.apps.__HUB_CLUSTER_DOMAIN__/v1
 ----
 
-== Obtain the API key
+Platform services (Lightspeed, NeuroFace scaffold) use an auto-generated **platform API key** from Vault (`ai-gateway-platform-keys`). Workshop users request their own key through Developer Hub.
 
-=== Option A — OpenShift AI dashboard
+== Obtain your API key
 
-Open *maas-workshop* → Llama Scout 17B connection → copy API key.
+. Open `https://developer-hub.%HUB_DOMAIN%/`
+. Log in with `%USER_NAME%` / `Welcome123!`
+. *Catalog* → System *workshop-kuadrant-apis* → API *MaaS LLM (ai-gateway)*
+. *Kuadrant* tab → *Request API key* → copy the key
 
-=== Option B — Kubernetes Secret
+TIP: The gateway hostname is `https://ai-gateway.%HUB_DOMAIN%/v1/chat/completions`.
+
+== Test chat completion with curl
 
 [source,sh,role=execute]
 ----
-hub-login %USER_NAME%
-export API_KEY=$(oc get secret openshift-ai-maas-credentials -n maas-workshop \
-  -o jsonpath='{.data.api-key}' 2>/dev/null | base64 -d)
-echo "Key length: ${#API_KEY} characters"
-----
-
-IMPORTANT: Do not share or commit API keys. Keys are loaded from Vault during pattern installation.
-
-== Test MaaS chat completion
-
-[source,sh,role=execute]
-----
-export API_KEY="${API_KEY:-$(oc get secret openshift-ai-maas-credentials -n maas-workshop -o jsonpath='{.data.api-key}' 2>/dev/null | base64 -d)}"
-curl -sk -H "Authorization: Bearer $API_KEY" \
+export API_KEY="<your-kuadrant-api-key>"
+curl -sk -H "Authorization: APIKEY ${API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"llama-scout-17b","messages":[{"role":"user","content":"Explain PPE detection in one sentence"}]}' \
-  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/chat/completions | head -c 500
+  "https://ai-gateway.%HUB_DOMAIN%/v1/chat/completions" | head -c 500
 echo
 ----
 
@@ -67,57 +57,31 @@ echo
 }
 ----
 
-== Test with different models
-
-[source,sh,role=execute]
-----
-curl -sk -H "Authorization: Bearer $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"model":"granite-3-2-8b-instruct","messages":[{"role":"user","content":"What is YOLO object detection?"}],"max_tokens":100}' \
-  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/chat/completions | python3 -m json.tool 2>/dev/null | head -20
-----
-
-.Expected output (truncated)
-[source,json]
-----
-{
-  "id": "chatcmpl-xxx",
-  "object": "chat.completion",
-  "choices": [{
-    "message": {
-      "role": "assistant",
-      "content": "YOLO (You Only Look Once) is a real-time object detection..."
-    }
-  }]
-}
-----
-
 == List available models
 
 [source,sh,role=execute]
 ----
-curl -sk -H "Authorization: Bearer $API_KEY" \
-  https://maas-rhdp.apps.maas.redhatworkshops.io/v1/models | python3 -m json.tool 2>/dev/null | head -20
+curl -sk -H "Authorization: APIKEY ${API_KEY}" \
+  "https://ai-gateway.%HUB_DOMAIN%/v1/models" | python3 -m json.tool 2>/dev/null | head -20
 ----
 
-.Expected output (truncated)
-[source,json]
+== Contrast: direct MaaS (optional)
+
+The hub OpenShift AI dashboard may still show the upstream MaaS endpoint for reference:
+
+[source,text]
 ----
-{
-  "data": [
-    {"id": "llama-scout-17b", "object": "model"},
-    {"id": "granite-3-2-8b-instruct", "object": "model"},
-    ...
-  ]
-}
+https://maas-rhdp.apps.maas.redhatworkshops.io/v1
 ----
+
+Workshop apps in this pattern are wired to **AI Gateway** so Kuadrant can enforce APIKEY auth and rate limits. Do not embed upstream MaaS keys in scaffolded repos.
 
 == Test NeuroFace gateway
 
 [source,sh,role=execute]
 ----
 curl -sk -o /dev/null -w "NeuroFace gateway: HTTP %{http_code}\n" \
-  https://neuroface.%HUB_DOMAIN%/
+  "https://neuroface.%HUB_DOMAIN%/user/%USER_NAME%/"
 ----
 
 .Expected output
@@ -128,9 +92,9 @@ NeuroFace gateway: HTTP 200
 
 == What you learned
 
-* MaaS provides external LLM inference for NeuroFace chat
-* API keys flow from Vault → Secret → dashboard and backend
-* curl validates end-to-end MaaS and gateway connectivity
+* All MaaS traffic from workshop apps flows through AI Gateway on the hub
+* User API keys are issued via Developer Hub Kuadrant integration
+* Platform keys (`ai-gateway-platform-keys`) are auto-generated in Vault at install time
 
 == Next
 
